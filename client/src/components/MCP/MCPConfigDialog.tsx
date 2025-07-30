@@ -128,11 +128,11 @@ export default function MCPConfigDialog({
           />
         </div>
 
-        {/* Server Initialization Section */}
+        {/* Server Initialization Section - Always show for OAuth servers or when custom vars exist */}
         <ServerInitializationSection
           serverName={serverName}
           requiresOAuth={serverStatus?.requiresOAuth || false}
-          hasCustomUserVars={fieldsSchema && Object.keys(fieldsSchema).length > 0}
+          hasCustomUserVars={hasFields}
         />
       </OGDialogContent>
     </OGDialog>

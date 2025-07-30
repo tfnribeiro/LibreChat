@@ -73,8 +73,8 @@ export default function MCPServerStatusIcon({
   }
 
   if (connectionState === 'connected') {
-    // Only show config button if there are customUserVars to configure
-    if (hasCustomUserVars) {
+    // Show config button if there are customUserVars to configure OR if it's an OAuth server (for revoke functionality)
+    if (hasCustomUserVars || requiresOAuth) {
       const isAuthenticated = tool?.authenticated || requiresOAuth;
       return (
         <AuthenticatedStatusIcon
@@ -84,7 +84,7 @@ export default function MCPServerStatusIcon({
         />
       );
     }
-    return null; // No config button for connected servers without customUserVars
+    return null; // No config button for connected servers without customUserVars or OAuth
   }
 
   return null;

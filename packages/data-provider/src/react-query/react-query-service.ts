@@ -351,6 +351,21 @@ export const useCancelMCPOAuthMutation = (): UseMutationResult<
   });
 };
 
+export const useRevokeMCPOAuthMutation = (): UseMutationResult<
+  m.RevokeMCPOAuthResponse,
+  unknown,
+  string,
+  unknown
+> => {
+  const queryClient = useQueryClient();
+  return useMutation((serverName: string) => dataService.revokeMCPOAuth(serverName), {
+    onSuccess: () => {
+      queryClient.invalidateQueries([QueryKeys.mcpConnectionStatus]);
+      queryClient.invalidateQueries([QueryKeys.tools]);
+    },
+  });
+};
+
 export const useGetCustomConfigSpeechQuery = (
   config?: UseQueryOptions<t.TCustomConfigSpeechResponse>,
 ): QueryObserverResult<t.TCustomConfigSpeechResponse> => {

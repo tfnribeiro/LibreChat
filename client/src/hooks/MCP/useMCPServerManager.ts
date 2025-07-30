@@ -1,7 +1,7 @@
 import { useCallback, useState, useMemo, useRef, useEffect } from 'react';
 import { useToastContext } from '@librechat/client';
-import { useQueryClient } from '@tanstack/react-query';
-import { Constants, QueryKeys } from 'librechat-data-provider';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Constants, QueryKeys, dataService } from 'librechat-data-provider';
 import {
   useCancelMCPOAuthMutation,
   useUpdateUserPluginsMutation,
@@ -47,6 +47,17 @@ export function useMCPServerManager() {
 
   const reinitializeMutation = useReinitializeMCPServerMutation();
   const cancelOAuthMutation = useCancelMCPOAuthMutation();
+
+  // Create OAuth revoke mutation using the data service (which includes authentication)
+  const revokeOAuthMutation = useMutation(
+    (serverName: string) => dataService.revokeMCPOAuth(serverName),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries([QueryKeys.mcpConnectionStatus]);
+        queryClient.invalidateQueries([QueryKeys.tools]);
+      },
+    },
+  );
 
   const updateUserPluginsMutation = useUpdateUserPluginsMutation({
     onSuccess: async () => {
@@ -295,6 +306,38 @@ export function useMCPServerManager() {
     [queryClient, cleanupServerState, showToast, localize, cancelOAuthMutation],
   );
 
+  const revokeOAuthFlow = useCallback(
+    (serverName: string) => {
+      revokeOAuthMutation.mutate(serverName, {
+        onSuccess: () => {
+          cleanupServerState(serverName);
+
+          // Remove server from selected values since OAuth tokens are revoked
+          const currentValues = mcpValues ?? [];
+          const filteredValues = currentValues.filter((name) => name !== serverName);
+          setMCPValues(filteredValues);
+
+          // Force refresh of connection status to reflect the revoked state
+          queryClient.invalidateQueries([QueryKeys.mcpConnectionStatus]);
+          queryClient.invalidateQueries([QueryKeys.tools]);
+
+          showToast({
+            message: `OAuth tokens revoked for ${serverName}. You can now re-authenticate.`,
+            status: 'success',
+          });
+        },
+        onError: (error) => {
+          console.error(`[MCP Manager] Failed to revoke OAuth for ${serverName}:`, error);
+          showToast({
+            message: `Failed to revoke OAuth tokens for ${serverName}`,
+            status: 'error',
+          });
+        },
+      });
+    },
+    [revokeOAuthMutation, cleanupServerState, mcpValues, setMCPValues, showToast, queryClient],
+  );
+
   const isInitializing = useCallback(
     (serverName: string) => {
       return serverStates[serverName]?.isInitializing || false;
@@ -536,6 +579,7 @@ export function useMCPServerManager() {
     connectionStatus,
     initializeServer,
     cancelOAuthFlow,
+    revokeOAuthFlow,
     isInitializing,
     isCancellable,
     getOAuthUrl,

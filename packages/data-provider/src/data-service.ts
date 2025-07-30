@@ -163,6 +163,10 @@ export function cancelMCPOAuth(serverName: string): Promise<m.CancelMCPOAuthResp
   return request.post(endpoints.cancelMCPOAuth(serverName), {});
 }
 
+export function revokeMCPOAuth(serverName: string): Promise<m.RevokeMCPOAuthResponse> {
+  return request.post(endpoints.revokeMCPOAuth(serverName), {});
+}
+
 /* Config */
 
 export const getStartupConfig = (): Promise<

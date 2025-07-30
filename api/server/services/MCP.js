@@ -399,10 +399,10 @@ async function getServerConnectionStatus(
     }
   }
 
-  // return {
-  //   requiresOAuth: oauthServers.has(serverName),
-  //   connectionState: finalConnectionState,
-  // };
+  return {
+    requiresOAuth,
+    connectionState: finalConnectionState,
+  };
 }
 
 module.exports = {

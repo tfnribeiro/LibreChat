@@ -22,6 +22,7 @@ export default function ServerInitializationSection({
     initializeServer,
     connectionStatus,
     cancelOAuthFlow,
+    revokeOAuthFlow,
     isInitializing,
     isCancellable,
     getOAuthUrl,

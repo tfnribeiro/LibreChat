@@ -378,3 +378,9 @@ export interface CancelMCPOAuthResponse {
   success: boolean;
   message: string;
 }
+
+export interface RevokeMCPOAuthResponse {
+  success: boolean;
+  message: string;
+  serverName: string;
+}

@@ -144,6 +144,10 @@ export const cancelMCPOAuth = (serverName: string) => {
   return `/api/mcp/oauth/cancel/${serverName}`;
 };
 
+export const revokeMCPOAuth = (serverName: string) => {
+  return `/api/mcp/${serverName}/oauth/revoke`;
+};
+
 export const config = () => '/api/config';
 
 export const prompts = () => '/api/prompts';
