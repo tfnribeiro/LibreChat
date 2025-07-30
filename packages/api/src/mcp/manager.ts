@@ -494,6 +494,9 @@ export class MCPManager {
     connection.on('oauthRequired', async (data) => {
       logger.info(`[MCP][User: ${userId}][${serverName}] oauthRequired event received`);
 
+      // Add server to OAuth servers set
+      this.oauthServers.add(serverName);
+
       // If we just want to initiate OAuth and return, handle it differently
       if (returnOnOAuth) {
         try {
@@ -1139,5 +1142,18 @@ ${logPrefix} Flow ID: ${newFlowId}
   /** Get servers that require OAuth */
   public getOAuthServers(): Set<string> {
     return this.oauthServers;
+  }
+
+  /** Remove a server from OAuth servers set */
+  public removeOAuthServer(serverName: string): void {
+    this.oauthServers.delete(serverName);
+  }
+
+  /**
+   * Check if a server requires OAuth based on configuration
+   */
+  public serverRequiresOAuth(serverName: string): boolean {
+    const config = this.mcpConfigs[serverName];
+    return !!config?.oauth;
   }
 }

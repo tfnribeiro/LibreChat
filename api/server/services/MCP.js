@@ -339,7 +339,7 @@ async function getServerConnectionStatus(
   serverName,
   appConnections,
   userConnections,
-  oauthServers,
+  _oauthServers,
 ) {
   const getConnectionState = () =>
     appConnections.get(serverName)?.connectionState ??
@@ -349,7 +349,36 @@ async function getServerConnectionStatus(
   const baseConnectionState = getConnectionState();
   let finalConnectionState = baseConnectionState;
 
-  if (baseConnectionState === 'disconnected' && oauthServers.has(serverName)) {
+  const mcpManager = getMCPManager(userId);
+
+  const hasOAuthConfig = mcpManager.serverRequiresOAuth(serverName);
+
+  if (hasOAuthConfig) {
+    const baseIdentifier = `mcp:${serverName}`;
+    try {
+      const accessToken = await findToken({ identifier: baseIdentifier });
+
+      if (!accessToken) {
+        // No tokens found, server should be considered disconnected regardless of in-memory state
+        finalConnectionState = 'disconnected';
+        logger.debug(
+          `[Connection Status] No OAuth tokens found for ${serverName}, marking as disconnected`,
+        );
+      } else if (baseConnectionState === 'disconnected') {
+        // Tokens exist but connection shows disconnected, check OAuth flow status
+        const { hasActiveFlow, hasFailedFlow } = await checkOAuthFlowStatus(userId, serverName);
+
+        if (hasFailedFlow) {
+          finalConnectionState = 'error';
+        } else if (hasActiveFlow) {
+          finalConnectionState = 'connecting';
+        }
+      }
+    } catch (error) {
+      logger.warn(`[Connection Status] Error checking tokens for ${serverName}:`, error);
+      finalConnectionState = 'disconnected';
+    }
+  } else if (baseConnectionState === 'disconnected') {
     const { hasActiveFlow, hasFailedFlow } = await checkOAuthFlowStatus(userId, serverName);
 
     if (hasFailedFlow) {
@@ -359,10 +388,21 @@ async function getServerConnectionStatus(
     }
   }
 
-  return {
-    requiresOAuth: oauthServers.has(serverName),
-    connectionState: finalConnectionState,
-  };
+  let requiresOAuth = hasOAuthConfig;
+  if (hasOAuthConfig) {
+    try {
+      const baseIdentifier = `mcp:${serverName}`;
+      const accessToken = await findToken({ identifier: baseIdentifier });
+      requiresOAuth = !accessToken;
+    } catch (_error) {
+      requiresOAuth = true;
+    }
+  }
+
+  // return {
+  //   requiresOAuth: oauthServers.has(serverName),
+  //   connectionState: finalConnectionState,
+  // };
 }
 
 module.exports = {
