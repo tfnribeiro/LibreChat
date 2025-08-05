@@ -892,6 +892,8 @@ const sharedOpenAIModels = [
 const sharedAnthropicModels = [
   'claude-sonnet-4-20250514',
   'claude-sonnet-4-latest',
+  'claude-opus-4-1-latest',
+  'claude-opus-4-1-20250805',
   'claude-opus-4-20250514',
   'claude-opus-4-latest',
   'claude-3-7-sonnet-latest',
