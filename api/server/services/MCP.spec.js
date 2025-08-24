@@ -286,6 +286,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: false,
         connectionState: 'connected',
+        hasEverConnected: false,
       });
     });
 
@@ -305,6 +306,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: false,
         connectionState: 'connecting',
+        hasEverConnected: false,
       });
     });
 
@@ -324,6 +326,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: false,
         connectionState: 'disconnected',
+        hasEverConnected: false,
       });
     });
 
@@ -343,6 +346,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: false,
         connectionState: 'connected',
+        hasEverConnected: false,
       });
     });
 
@@ -390,6 +394,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: true,
         connectionState: 'error',
+        hasEverConnected: false,
       });
     });
 
@@ -421,6 +426,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: true,
         connectionState: 'connecting',
+        hasEverConnected: false,
       });
     });
 
@@ -448,6 +454,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: true,
         connectionState: 'disconnected',
+        hasEverConnected: false,
       });
     });
 
@@ -473,6 +480,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: true,
         connectionState: 'connected',
+        hasEverConnected: false,
       });
 
       // Should not call flow manager since server is connected
@@ -501,6 +509,7 @@ describe('tests for the new helper functions used by the MCP connection status e
       expect(result).toEqual({
         requiresOAuth: false,
         connectionState: 'disconnected',
+        hasEverConnected: false,
       });
 
       // Should not call flow manager since server doesn't require OAuth
