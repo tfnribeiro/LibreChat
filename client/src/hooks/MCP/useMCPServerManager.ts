@@ -483,6 +483,7 @@ export function useMCPServerManager() {
         canCancel: isCancellable(serverName),
         onCancel: handleCancelClick,
         hasCustomUserVars,
+        serverType: serverConfig?.type,
       };
     },
     [
@@ -518,6 +519,7 @@ export function useMCPServerManager() {
     return {
       serverName: selectedToolForConfig.name,
       serverStatus: connectionStatus[selectedToolForConfig.name],
+      serverType: startupConfig?.mcpServers?.[selectedToolForConfig.name]?.type,
       isOpen: isConfigModalOpen,
       onOpenChange: handleDialogOpenChange,
       fieldsSchema,
@@ -534,6 +536,7 @@ export function useMCPServerManager() {
     handleSave,
     handleRevoke,
     updateUserPluginsMutation.isLoading,
+    startupConfig?.mcpServers,
   ]);
 
   return {

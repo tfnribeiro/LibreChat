@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyRound, PlugZap, AlertTriangle } from 'lucide-react';
+import { KeyRound, PlugZap, AlertTriangle, Unplug, Power } from 'lucide-react';
 import {
   Spinner,
   OGDialog,
@@ -27,6 +27,7 @@ interface MCPConfigDialogProps {
   onRevoke?: () => void;
   serverName: string;
   serverStatus?: MCPServerStatus;
+  serverType?: string;
 }
 
 export default function MCPConfigDialog({
@@ -38,6 +39,7 @@ export default function MCPConfigDialog({
   onRevoke,
   serverName,
   serverStatus,
+  serverType,
 }: MCPConfigDialogProps) {
   const localize = useLocalize();
 
@@ -52,7 +54,7 @@ export default function MCPConfigDialog({
       return null;
     }
 
-    const { connectionState, requiresOAuth } = serverStatus;
+    const { connectionState, requiresOAuth, hasEverConnected = false } = serverStatus;
 
     if (connectionState === 'connecting') {
       return (
@@ -73,9 +75,21 @@ export default function MCPConfigDialog({
         );
       } else {
         return (
-          <div className="flex items-center gap-2 rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-orange-600 dark:bg-orange-950 dark:text-orange-400">
-            <PlugZap className="h-3 w-3" />
-            <span>{localize('com_ui_offline')}</span>
+          <div
+            className={`flex items-center gap-2 rounded-full px-2 py-0.5 text-xs font-medium ${
+              hasEverConnected
+                ? 'bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400'
+                : 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
+            }`}
+          >
+            {(() => {
+              if (hasEverConnected) return <PlugZap className="h-3 w-3" />;
+              if (serverType === 'stdio') return <Power className="h-3 w-3" />;
+              return <Unplug className="h-3 w-3" />;
+            })()}
+            <span>
+              {hasEverConnected ? localize('com_ui_offline') : localize('com_ui_not_connected')}
+            </span>
           </div>
         );
       }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Spinner } from '@librechat/client';
-import { SettingsIcon, AlertTriangle, KeyRound, PlugZap, X } from 'lucide-react';
+import { SettingsIcon, AlertTriangle, KeyRound, PlugZap, X, Unplug, Power } from 'lucide-react';
 import type { MCPServerStatus, TPlugin } from 'librechat-data-provider';
 import { useLocalize } from '~/hooks';
 
@@ -25,6 +25,7 @@ interface MCPServerStatusIconProps {
   canCancel: boolean;
   onCancel: (e: React.MouseEvent) => void;
   hasCustomUserVars?: boolean;
+  serverType?: string;
 }
 
 /**
@@ -39,6 +40,7 @@ export default function MCPServerStatusIcon({
   canCancel,
   onCancel,
   hasCustomUserVars = false,
+  serverType,
 }: MCPServerStatusIconProps) {
   localize = useLocalize();
   if (isInitializing) {
@@ -56,7 +58,7 @@ export default function MCPServerStatusIcon({
     return null;
   }
 
-  const { connectionState, requiresOAuth } = serverStatus;
+  const { connectionState, requiresOAuth, hasEverConnected = false } = serverStatus;
 
   if (connectionState === 'connecting') {
     return <ConnectingStatusIcon serverName={serverName} onConfigClick={onConfigClick} />;
@@ -66,7 +68,14 @@ export default function MCPServerStatusIcon({
     if (requiresOAuth) {
       return <DisconnectedOAuthStatusIcon serverName={serverName} onConfigClick={onConfigClick} />;
     }
-    return <DisconnectedStatusIcon serverName={serverName} onConfigClick={onConfigClick} />;
+    return (
+      <DisconnectedStatusIcon
+        serverName={serverName}
+        onConfigClick={onConfigClick}
+        hasEverConnected={hasEverConnected}
+        serverType={serverType}
+      />
+    );
   }
 
   if (connectionState === 'error') {
@@ -143,7 +152,27 @@ function DisconnectedOAuthStatusIcon({ serverName, onConfigClick }: StatusIconPr
   );
 }
 
-function DisconnectedStatusIcon({ serverName, onConfigClick }: StatusIconProps) {
+interface DisconnectedStatusProps extends StatusIconProps {
+  hasEverConnected: boolean;
+  serverType?: string;
+}
+
+function DisconnectedStatusIcon({
+  serverName,
+  onConfigClick,
+  hasEverConnected,
+  serverType,
+}: DisconnectedStatusProps) {
+  const getDisconnectedIcon = () => {
+    if (hasEverConnected) {
+      return <PlugZap className="h-4 w-4 text-orange-500" />;
+    }
+    if (serverType === 'stdio') {
+      return <Power className="h-4 w-4 text-blue-500" />;
+    }
+    return <Unplug className="h-4 w-4 text-blue-500" />;
+  };
+
   return (
     <button
       type="button"
@@ -151,7 +180,7 @@ function DisconnectedStatusIcon({ serverName, onConfigClick }: StatusIconProps) 
       className="flex h-6 w-6 items-center justify-center rounded p-1 hover:bg-surface-secondary"
       aria-label={localize('com_nav_mcp_configure_server', { 0: serverName })}
     >
-      <PlugZap className="h-4 w-4 text-orange-500" />
+      {getDisconnectedIcon()}
     </button>
   );
 }

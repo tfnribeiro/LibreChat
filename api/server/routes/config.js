@@ -1,5 +1,5 @@
 const express = require('express');
-const { isEnabled } = require('@librechat/api');
+const { isEnabled, determineServerType } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
 const { CacheKeys, defaultSocialLogins, Constants } = require('librechat-data-provider');
 const { getCustomConfig } = require('~/server/services/Config/getCustomConfig');
@@ -116,11 +116,13 @@ router.get('/', async function (req, res) {
         const oauthServers = mcpManager.getOAuthServers();
         for (const serverName in config.mcpServers) {
           const serverConfig = config.mcpServers[serverName];
+          const serverType = determineServerType(serverConfig);
           payload.mcpServers[serverName] = {
             startup: serverConfig?.startup,
             chatMenu: serverConfig?.chatMenu,
             isOAuth: oauthServers?.has(serverName),
             customUserVars: serverConfig?.customUserVars || {},
+            type: serverType,
           };
         }
       } catch (err) {

@@ -83,6 +83,7 @@ export class MCPConnection extends EventEmitter {
   private oauthTokens?: MCPOAuthTokens | null;
   private requestHeaders?: Record<string, string> | null;
   private oauthRequired = false;
+  private hasEverConnected = false;
   iconPath?: string;
   timeout?: number;
   url?: string;
@@ -436,6 +437,7 @@ export class MCPConnection extends EventEmitter {
         ]);
 
         this.connectionState = 'connected';
+        this.hasEverConnected = true;
         this.emit('connectionChange', 'connected');
         this.reconnectAttempts = 0;
       } catch (error) {
@@ -691,6 +693,10 @@ export class MCPConnection extends EventEmitter {
 
   public setOAuthTokens(tokens: MCPOAuthTokens): void {
     this.oauthTokens = tokens;
+  }
+
+  public getHasEverConnected(): boolean {
+    return this.hasEverConnected;
   }
 
   private isOAuthError(error: unknown): boolean {

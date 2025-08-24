@@ -1,6 +1,31 @@
 import { Constants } from 'librechat-data-provider';
+import type * as t from './types';
 
 export const mcpToolPattern = new RegExp(`^.+${Constants.mcp_delimiter}.+$`);
+
+export function determineServerType(serverConfig: t.MCPOptions): string {
+  if ('command' in serverConfig) {
+    return 'stdio';
+  }
+
+  if (!('url' in serverConfig)) {
+    return 'unknown';
+  }
+
+  const protocol = new URL(serverConfig.url).protocol;
+  if (protocol === 'ws:' || protocol === 'wss:') {
+    return 'websocket';
+  }
+
+  if ('type' in serverConfig) {
+    const optionType = serverConfig.type as string;
+    if (optionType === 'streamable-http' || optionType === 'http') {
+      return 'streamable-http';
+    }
+  }
+
+  return 'sse';
+}
 /**
  * Normalizes a server name to match the pattern ^[a-zA-Z0-9_.-]+$
  * This is required for Azure OpenAI models with Tool Calling

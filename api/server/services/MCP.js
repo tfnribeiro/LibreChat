@@ -548,9 +548,15 @@ async function getServerConnectionStatus(
     }
   }
 
+  const appConnection = appConnections.get(serverName);
+  const userConnection = userConnections.get(serverName);
+  const hasEverConnected =
+    appConnection?.getHasEverConnected?.() || userConnection?.getHasEverConnected?.() || false;
+
   return {
     requiresOAuth: oauthServers.has(serverName),
     connectionState: finalConnectionState,
+    hasEverConnected,
   };
 }
 
