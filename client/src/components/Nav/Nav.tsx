@@ -16,6 +16,7 @@ import { Conversations } from '~/components/Conversations';
 import SearchBar from './SearchBar';
 import NewChat from './NewChat';
 import { cn } from '~/utils';
+import NewProject from './NewProject';
 import store from '~/store';
 
 const BookmarkNav = lazy(() => import('./Bookmarks/BookmarkNav'));
@@ -158,6 +159,7 @@ const Nav = memo(
     const headerButtons = useMemo(
       () => (
         <>
+          <NewProject toggleNav={toggleNavVisible} isSmallScreen={isSmallScreen} />
           <Suspense fallback={null}>
             <AgentMarketplaceButton isSmallScreen={isSmallScreen} toggleNav={toggleNavVisible} />
           </Suspense>
