@@ -17,6 +17,7 @@ import LoginLayout from './Layouts/Login';
 import dashboardRoutes from './Dashboard';
 import ShareRoute from './ShareRoute';
 import ChatRoute from './ChatRoute';
+import ProjectRoute from './ProjectRoute';
 import Search from './Search';
 import Root from './Root';
 
@@ -113,6 +114,10 @@ export const router = createBrowserRouter([
           {
             path: 'agents/:category',
             element: <AgentMarketplace />,
+          },
+          {
+            path: 'projects/:projectId/c/:conversationId?',
+            element: <ProjectRoute />,
           },
         ],
       },
