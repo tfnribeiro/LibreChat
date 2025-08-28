@@ -15,7 +15,11 @@ export default function NewProject({
   const localize = useLocalize();
 
   const clickHandler = useCallback(() => {
-    navigate('/projects/new/c/new');
+    const name = window.prompt('Name your project');
+    if (!name) {
+      return;
+    }
+    navigate(`/projects/${encodeURIComponent(name)}/c/new`);
     if (isSmallScreen) {
       toggleNav();
     }
