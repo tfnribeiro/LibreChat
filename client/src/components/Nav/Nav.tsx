@@ -18,6 +18,7 @@ import NewChat from './NewChat';
 import { cn } from '~/utils';
 import NewProject from './NewProject';
 import store from '~/store';
+import { projectsState } from '~/store/projects';
 
 const BookmarkNav = lazy(() => import('./Bookmarks/BookmarkNav'));
 const AccountSettings = lazy(() => import('./AccountSettings'));
@@ -110,6 +111,8 @@ const Nav = memo(
     const conversations = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.conversations) : [];
     }, [data]);
+
+    const projects = useRecoilValue(projectsState);
 
     const toggleNavVisible = useCallback(() => {
       setNavVisible((prev: boolean) => {
@@ -221,6 +224,24 @@ const Nav = memo(
                         headerButtons={headerButtons}
                         isSmallScreen={isSmallScreen}
                       />
+                      {projects.length > 0 && (
+                        <div className="mb-2" data-testid="project-nav">
+                          {projects.map((p) => (
+                            <details key={p.id} className="px-2">
+                              <summary className="cursor-pointer list-none text-sm font-medium text-text-primary">
+                                {p.id}
+                              </summary>
+                              <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
+                                {p.conversations.map((c) => (
+                                  <li key={c.id}>
+                                    <a href={`/projects/${p.id}/c/${c.id}`}>{c.title}</a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                          ))}
+                        </div>
+                      )}
                       <Conversations
                         conversations={conversations}
                         moveToTop={moveToTop}

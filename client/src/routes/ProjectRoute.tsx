@@ -20,12 +20,12 @@ export default function ProjectRoute({
   const [conversations] = useState(testConversations);
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full flex-col">
       <div className="flex flex-1 flex-col">
         <ChatRoute />
       </div>
-      <aside className="border-border-subtle flex w-80 flex-col gap-4 border-l p-4">
-        <DragDropWrapper className="border-border-subtle flex flex-1 items-center justify-center rounded-md border border-dashed">
+      <div className="border-border-subtle flex flex-col gap-4 border-t p-4">
+        <DragDropWrapper className="border-border-subtle flex items-center justify-center rounded-md border border-dashed p-4">
           {files.length === 0 ? (
             <div className="flex flex-col items-center text-text-secondary">
               <Files data-testid="file-icon" className="mb-2 h-12 w-12" />
@@ -39,7 +39,7 @@ export default function ProjectRoute({
             </ul>
           )}
         </DragDropWrapper>
-        <div className="flex-1 overflow-y-auto">
+        <div className="max-h-40 overflow-y-auto">
           <h3 className="mb-2 text-sm font-medium">{localize('com_ui_past_chats')}</h3>
           {conversations.length === 0 ? (
             <ul className="space-y-2 text-sm text-text-secondary">
@@ -55,7 +55,7 @@ export default function ProjectRoute({
             </ul>
           )}
         </div>
-      </aside>
+      </div>
     </div>
   );
 }
