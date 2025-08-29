@@ -63,4 +63,3 @@ test('opens modal and creates project', () => {
 
   expect(mockNavigate).toHaveBeenCalledWith('/projects/Test%20Project/c/new');
 });
-

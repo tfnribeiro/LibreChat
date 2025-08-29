@@ -25,7 +25,6 @@ export default function NewProject({
   const setProjects = useSetRecoilState(projectsState);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-
   const createProject = useCallback(() => {
     const trimmed = name.trim();
     if (!trimmed) {
