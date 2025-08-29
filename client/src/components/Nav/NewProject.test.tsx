@@ -25,6 +25,7 @@ jest.mock(
     ),
     Input: (props) => <input {...props} />,
     Label: (props) => <label {...props} />,
+
   }),
   { virtual: true },
 );
@@ -36,6 +37,7 @@ jest.mock('~/hooks', () => ({
       com_ui_name: 'Name',
       com_ui_create: 'Create',
     } as Record<string, string>;
+
     return map[key] || key;
   },
 }));

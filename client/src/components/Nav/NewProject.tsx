@@ -32,6 +32,7 @@ export default function NewProject({
     }
     setProjects((prev: Project[]) => [...prev, { id: trimmed, conversations: [] }]);
     navigate(`/projects/${encodeURIComponent(trimmed)}/c/new`);
+
     if (isSmallScreen) {
       toggleNav();
     }
