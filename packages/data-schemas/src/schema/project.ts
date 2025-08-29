@@ -1,12 +1,5 @@
-import { Schema, Document, Types } from 'mongoose';
-
-export interface IMongoProject extends Document {
-  name: string;
-  promptGroupIds: Types.ObjectId[];
-  agentIds: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { Schema } from 'mongoose';
+import type { IMongoProject } from '~/types';
 
 const projectSchema = new Schema<IMongoProject>(
   {
@@ -23,6 +16,16 @@ const projectSchema = new Schema<IMongoProject>(
     agentIds: {
       type: [String],
       ref: 'Agent',
+      default: [],
+    },
+    conversationIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'Conversation',
+      default: [],
+    },
+    fileIds: {
+      type: [Schema.Types.ObjectId],
+      ref: 'File',
       default: [],
     },
   },
