@@ -20,6 +20,11 @@ const convoSchema: Schema<IConversation> = new Schema(
       type: String,
       index: true,
     },
+    kb_id: {
+      type:Number,
+      ref: "KnowledgeBase",
+      index:true,
+    },
     messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
     agentOptions: {
       type: Schema.Types.Mixed,

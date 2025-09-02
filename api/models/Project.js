@@ -119,65 +119,6 @@ const removeAgentFromAllProjects = async (agentId) => {
   await Project.updateMany({}, { $pull: { agentIds: agentId } });
 };
 
-/**
- * Add an array of conversation IDs to a project's conversationIds array, ensuring uniqueness.
- *
- * @param {string} projectId - The ID of the project to update.
- * @param {string[]} conversationIds - The array of conversation IDs to add to the project.
- * @returns {Promise<IMongoProject>} The updated project document.
- */
-const addConversationIdsToProject = async function (projectId, conversationIds) {
-  return await Project.findByIdAndUpdate(
-    projectId,
-    { $addToSet: { conversationIds: { $each: conversationIds } } },
-    { new: true },
-  );
-};
-
-/**
- * Remove an array of conversation IDs from a project's conversationIds array.
- *
- * @param {string} projectId - The ID of the project to update.
- * @param {string[]} conversationIds - The array of conversation IDs to remove from the project.
- * @returns {Promise<IMongoProject>} The updated project document.
- */
-const removeConversationIdsFromProject = async function (projectId, conversationIds) {
-  return await Project.findByIdAndUpdate(
-    projectId,
-    { $pull: { conversationIds: { $in: conversationIds } } },
-    { new: true },
-  );
-};
-
-/**
- * Add an array of file IDs to a project's fileIds array, ensuring uniqueness.
- *
- * @param {string} projectId - The ID of the project to update.
- * @param {string[]} fileIds - The array of file IDs to add to the project.
- * @returns {Promise<IMongoProject>} The updated project document.
- */
-const addFileIdsToProject = async function (projectId, fileIds) {
-  return await Project.findByIdAndUpdate(
-    projectId,
-    { $addToSet: { fileIds: { $each: fileIds } } },
-    { new: true },
-  );
-};
-
-/**
- * Remove an array of file IDs from a project's fileIds array.
- *
- * @param {string} projectId - The ID of the project to update.
- * @param {string[]} fileIds - The array of file IDs to remove from the project.
- * @returns {Promise<IMongoProject>} The updated project document.
- */
-const removeFileIdsFromProject = async function (projectId, fileIds) {
-  return await Project.findByIdAndUpdate(
-    projectId,
-    { $pull: { fileIds: { $in: fileIds } } },
-    { new: true },
-  );
-};
 
 module.exports = {
   getProjectById,
@@ -190,10 +131,4 @@ module.exports = {
   addAgentIdsToProject,
   removeAgentIdsFromProject,
   removeAgentFromAllProjects,
-  /* conversations */
-  addConversationIdsToProject,
-  removeConversationIdsFromProject,
-  /* files */
-  addFileIdsToProject,
-  removeFileIdsFromProject,
 };

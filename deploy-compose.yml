@@ -4,7 +4,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile.multi
     #   target: api-build
-    image: ghcr.io/danny-avila/librechat-dev-api:latest
+    image: test:librechat
     container_name: LibreChat-API
     ports:
       - 3080:3080
@@ -21,8 +21,10 @@ services:
       - NODE_ENV=production
       - MONGO_URI=mongodb://mongodb:27017/LibreChat
       - MEILI_HOST=http://meilisearch:7700
-      - RAG_PORT=${RAG_PORT:-8000}
-      - RAG_API_URL=http://rag_api:${RAG_PORT:-8000}
+      - RAG_API_URL=http://host.docker.internal:8000
+      - EMBEDDINGS_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - EMBEDDINGS_MODEL=nomic-embed-text
     volumes:
       - type: bind
         source: ./librechat.yaml
@@ -74,7 +76,7 @@ services:
     volumes:
       - pgdata2:/var/lib/postgresql/data
   rag_api:
-    image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
+    image: test:librechat
     environment:
       - DB_HOST=vectordb
       - RAG_PORT=${RAG_PORT:-8000}

@@ -25,6 +25,7 @@ import { createMemoryModel } from './memory';
 import { createAccessRoleModel } from './accessRole';
 import { createAclEntryModel } from './aclEntry';
 import { createGroupModel } from './group';
+import { createKnowledgeBaseModel } from './knowledgeBase';
 
 /**
  * Creates all database models for all collections
@@ -43,6 +44,7 @@ export function createModels(mongoose: typeof import('mongoose')) {
     Action: createActionModel(mongoose),
     Assistant: createAssistantModel(mongoose),
     File: createFileModel(mongoose),
+    KnowledgeBase: createKnowledgeBaseModel(mongoose),
     Banner: createBannerModel(mongoose),
     Project: createProjectModel(mongoose),
     Key: createKeyModel(mongoose),
