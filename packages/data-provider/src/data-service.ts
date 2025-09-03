@@ -956,3 +956,6 @@ export function getEffectivePermissions(
 export function getGraphApiToken(params: q.GraphTokenParams): Promise<q.GraphTokenResponse> {
   return request.get(endpoints.graphToken(params.scopes));
 }
+
+// Knowledge Bases
+export const listKnowledgeBases = (): Promise<any[]> => request.get(endpoints.knowledgeBases());

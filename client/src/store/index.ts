@@ -9,6 +9,7 @@ import search from './search';
 import preset from './preset';
 import prompts from './prompts';
 import lang from './language';
+import { knowledgeBasesState } from './knowledgeBases';
 import settings from './settings';
 import misc from './misc';
 import isTemporary from './temporary';
@@ -24,6 +25,7 @@ export default {
   ...toast,
   ...submission,
   ...search,
+  ...knowledgeBasesState,
   ...prompts,
   ...preset,
   ...lang,

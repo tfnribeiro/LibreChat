@@ -1,0 +1,73 @@
+const express = require('express');
+const router = express.Router();
+const { requireJwtAuth } = require('~/server/middleware');
+const { KnowledgeBase } = require('~/db/models');
+const {
+  createKnowledgeBase,
+  deleteKnowledgeBase,
+  updateKnowledgeBaseName,
+  updateKnowledgeBaseDescription,
+} = require('~/models/KnowledgeBase');
+
+router.use(requireJwtAuth);
+
+// List knowledge bases for current user
+router.get('/', async (req, res) => {
+  try {
+    const kbs = await KnowledgeBase.find({ user: req.user.id }).sort({ createdAt: -1 });
+    res.status(200).json(kbs);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve knowledge bases', error: error.message });
+  }
+});
+
+// Create a knowledge base for current user
+router.post('/', async (req, res) => {
+  try {
+    const { name, description, slug } = req.body || {};
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+    const kb = await createKnowledgeBase({
+      user: req.user.id,
+      name: name.trim(),
+      description: description ?? undefined,
+      slug: slug ?? undefined,
+    });
+    res.status(201).json(kb);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create knowledge base', error: error.message });
+  }
+});
+
+// Update name or description
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body || {};
+    let kb = null;
+    if (typeof name !== 'undefined') {
+      kb = await updateKnowledgeBaseName(id, name);
+    }
+    if (typeof description !== 'undefined') {
+      kb = await updateKnowledgeBaseDescription(id, description);
+    }
+    res.status(200).json(kb);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update knowledge base', error: error.message });
+  }
+});
+
+// Delete knowledge base
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const kb = await deleteKnowledgeBase(id);
+    res.status(200).json(kb);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete knowledge base', error: error.message });
+  }
+});
+
+module.exports = router;
+

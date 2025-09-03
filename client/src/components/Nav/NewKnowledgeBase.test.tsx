@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-import NewProject from './NewProject';
+import NewKnowledgeBase from './NewKnowledgeBase';
 
 const mockNavigate = jest.fn();
 
@@ -33,7 +33,7 @@ jest.mock(
 jest.mock('~/hooks', () => ({
   useLocalize: () => (key: string) => {
     const map = {
-      com_ui_new_project: 'Create new project',
+      com_ui_new_knowledge_base: 'Create knowledge base',
       com_ui_name: 'Name',
       com_ui_create: 'Create',
     } as Record<string, string>;
@@ -46,22 +46,25 @@ beforeEach(() => {
   mockNavigate.mockReset();
 });
 
-test('opens modal and creates project', () => {
+test('opens modal and creates knowledge base (local fallback)', () => {
+  // Mock fetch to fail so we hit local fallback
+  jest.spyOn(global, 'fetch' as any).mockRejectedValueOnce(new Error('nope'));
   render(
     <RecoilRoot>
       <BrowserRouter>
-        <NewProject toggleNav={() => {}} />
+        <NewKnowledgeBase toggleNav={() => {}} />
       </BrowserRouter>
     </RecoilRoot>,
   );
 
-  fireEvent.click(screen.getByRole('button', { name: /create new project/i }));
+  fireEvent.click(screen.getByRole('button', { name: /create knowledge base/i }));
 
   const input = screen.getByLabelText(/name/i);
-  fireEvent.change(input, { target: { value: 'Test Project' } });
+  fireEvent.change(input, { target: { value: 'My KB' } });
 
   const createButton = screen.getAllByRole('button', { name: /create/i })[1];
   fireEvent.click(createButton);
 
-  expect(mockNavigate).toHaveBeenCalledWith('/projects/Test%20Project/c/new');
+  expect(mockNavigate).toHaveBeenCalledWith('/knowledge-bases/My%20KB/c/new');
 });
+

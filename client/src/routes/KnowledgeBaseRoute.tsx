@@ -5,17 +5,17 @@ import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { useLocalize } from '~/hooks';
 
-interface ProjectRouteProps {
+interface KnowledgeBaseRouteProps {
   testConversations?: { id: string; title: string }[];
   testFiles?: string[];
 }
 
-export default function ProjectRoute({
+export default function KnowledgeBaseRoute({
   testConversations = [],
   testFiles = [],
-}: ProjectRouteProps = {}) {
+}: KnowledgeBaseRouteProps = {}) {
   const localize = useLocalize();
-  const { projectId = '' } = useParams();
+  const { kbId = '' } = useParams();
   const [files] = useState(testFiles);
   const [conversations] = useState(testConversations);
 
@@ -49,7 +49,7 @@ export default function ProjectRoute({
             <ul className="space-y-2 text-sm text-text-secondary">
               {conversations.map((c) => (
                 <li key={c.id}>
-                  <Link to={`/projects/${projectId}/c/${c.id}`}>{c.title}</Link>
+                  <Link to={`/knowledge-bases/${kbId}/c/${c.id}`}>{c.title}</Link>
                 </li>
               ))}
             </ul>
@@ -59,3 +59,4 @@ export default function ProjectRoute({
     </div>
   );
 }
+

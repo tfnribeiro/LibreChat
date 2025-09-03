@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { RecoilRoot } from 'recoil';
 import Nav from './Nav';
-import { projectsState } from '~/store/projects';
+import { knowledgeBasesState } from '~/store/knowledgeBases';
 
 jest.mock('@librechat/client', () => ({ useMediaQuery: () => false }), { virtual: true });
 jest.mock('librechat-data-provider', () => ({ PermissionTypes: {}, Permissions: {} }), { virtual: true });
@@ -37,7 +37,7 @@ jest.mock('~/data-provider', () => ({
 
 jest.mock('./SearchBar', () => () => <div />);
 jest.mock('./NewChat', () => () => <div />);
-jest.mock('./NewProject', () => () => <div />);
+jest.mock('./NewKnowledgeBase', () => () => <div />);
 jest.mock('./AgentMarketplaceButton', () => () => <div />);
 jest.mock('./Bookmarks/BookmarkNav', () => () => <div />);
 jest.mock('./AccountSettings', () => () => <div />);
@@ -46,9 +46,9 @@ jest.mock('~/components/Conversations', () => ({
   Conversations: () => <div data-testid="conversations" />,
 }));
 
-test('renders projects above conversations', () => {
+test('renders knowledge bases above conversations', () => {
   const initializeState = ({ set }) => {
-    set(projectsState, [{ id: 'Proj', conversations: [{ id: '1', title: 'Chat' }] }]);
+    set(knowledgeBasesState, [{ id: 'kb-1', name: 'KB', conversations: [{ id: '1', title: 'Chat' }] }]);
   };
 
   render(
@@ -57,7 +57,7 @@ test('renders projects above conversations', () => {
     </RecoilRoot>,
   );
 
-  expect(screen.getByText('Proj')).toBeInTheDocument();
+  expect(screen.getByText('KB')).toBeInTheDocument();
   expect(screen.getByTestId('conversations')).toBeInTheDocument();
 });
 

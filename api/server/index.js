@@ -48,7 +48,20 @@ const startServer = async () => {
   await AppService(app);
 
   const indexPath = path.join(app.locals.paths.dist, 'index.html');
-  const indexHTML = fs.readFileSync(indexPath, 'utf8');
+  let indexHTML = '';
+  try {
+    indexHTML = fs.readFileSync(indexPath, 'utf8');
+  } catch (err) {
+    logger.error(
+      'UI build missing: client/dist/index.html not found. Build the client and restart.\n' +
+        'Steps:\n' +
+        '  1) cd client\n' +
+        '  2) npm ci\n' +
+        '  3) npm run build\n' +
+        'Ensure the built assets are present in the runtime (e.g., copied into the Docker image).',
+    );
+    throw err;
+  }
 
   app.get('/health', (_req, res) => res.status(200).send('OK'));
 
@@ -117,6 +130,7 @@ const startServer = async () => {
   app.use('/api/banner', routes.banner);
   app.use('/api/memories', routes.memories);
   app.use('/api/permissions', routes.accessPermissions);
+  app.use('/api/knowledge-bases', routes.knowledgeBases);
 
   app.use('/api/tags', routes.tags);
   app.use('/api/mcp', routes.mcp);

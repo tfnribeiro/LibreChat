@@ -11,14 +11,13 @@ import {
   useLocalStorage,
   useNavScrolling,
 } from '~/hooks';
-import { useConversationsInfiniteQuery } from '~/data-provider';
+import { useConversationsInfiniteQuery, useKnowledgeBasesQuery  } from '~/data-provider';
 import { Conversations } from '~/components/Conversations';
 import SearchBar from './SearchBar';
 import NewChat from './NewChat';
 import { cn } from '~/utils';
-import NewProject from './NewProject';
+import NewKnowledgeBase from './NewKnowledgeBase';
 import store from '~/store';
-import { projectsState } from '~/store/projects';
 
 const BookmarkNav = lazy(() => import('./Bookmarks/BookmarkNav'));
 const AccountSettings = lazy(() => import('./AccountSettings'));
@@ -108,12 +107,15 @@ const Nav = memo(
       isFetchingNext: isFetchingNextPage,
     });
 
+
     const conversations = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.conversations) : [];
     }, [data]);
 
-    const projects = useRecoilValue(projectsState);
+    const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated })
 
+    const mappedKBs = useMemo(() => kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] })), [kbs]);
+    
     const toggleNavVisible = useCallback(() => {
       setNavVisible((prev: boolean) => {
         localStorage.setItem('navVisible', JSON.stringify(!prev));
@@ -162,7 +164,7 @@ const Nav = memo(
     const headerButtons = useMemo(
       () => (
         <>
-          <NewProject toggleNav={toggleNavVisible} isSmallScreen={isSmallScreen} />
+          <NewKnowledgeBase toggleNav={toggleNavVisible} isSmallScreen={isSmallScreen} />
           <Suspense fallback={null}>
             <AgentMarketplaceButton isSmallScreen={isSmallScreen} toggleNav={toggleNavVisible} />
           </Suspense>
@@ -224,17 +226,17 @@ const Nav = memo(
                         headerButtons={headerButtons}
                         isSmallScreen={isSmallScreen}
                       />
-                      {projects.length > 0 && (
-                        <div className="mb-2" data-testid="project-nav">
-                          {projects.map((p) => (
+                      {mappedKBs.length > 0 && (
+                        <div className="mb-2" data-testid="knowledgebase-nav">
+                          {mappedKBs.map((p) => (
                             <details key={p.id} className="px-2">
                               <summary className="cursor-pointer list-none text-sm font-medium text-text-primary">
-                                {p.id}
+                                {p.name}
                               </summary>
                               <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
                                 {p.conversations.map((c) => (
                                   <li key={c.id}>
-                                    <a href={`/projects/${p.id}/c/${c.id}`}>{c.title}</a>
+                                    <a href={`/knowledge-bases/${p.id}/c/${c.id}`}>{c.title}</a>
                                   </li>
                                 ))}
                               </ul>

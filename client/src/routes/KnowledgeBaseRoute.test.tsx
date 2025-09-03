@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import ProjectRoute from './ProjectRoute';
+import KnowledgeBaseRoute from './KnowledgeBaseRoute';
 
 jest.mock('./ChatRoute', () => () => <div>chat</div>);
 jest.mock('@librechat/client', () => ({}), { virtual: true });
@@ -21,9 +21,9 @@ jest.mock('~/components/Chat/Input/Files/DragDropWrapper', () => ({
 
 test('shows file icon and no chats message when empty', () => {
   render(
-    <MemoryRouter initialEntries={['/projects/test/c/new']}>
+    <MemoryRouter initialEntries={['/knowledge-bases/test/c/new']}>
       <Routes>
-        <Route path="/projects/:projectId/c/:conversationId" element={<ProjectRoute />} />
+        <Route path="/knowledge-bases/:kbId/c/:conversationId" element={<KnowledgeBaseRoute />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -34,15 +34,16 @@ test('shows file icon and no chats message when empty', () => {
 test('renders conversation link when conversations exist', () => {
   const conversations = [{ id: '123', title: 'Previous Chat' }];
   render(
-    <MemoryRouter initialEntries={['/projects/test/c/new']}>
+    <MemoryRouter initialEntries={['/knowledge-bases/test/c/new']}>
       <Routes>
         <Route
-          path="/projects/:projectId/c/:conversationId"
-          element={<ProjectRoute testConversations={conversations} />}
+          path="/knowledge-bases/:kbId/c/:conversationId"
+          element={<KnowledgeBaseRoute testConversations={conversations} />}
         />
       </Routes>
     </MemoryRouter>,
   );
   const link = screen.getByRole('link', { name: 'Previous Chat' });
-  expect(link).toHaveAttribute('href', '/projects/test/c/123');
+  expect(link).toHaveAttribute('href', '/knowledge-bases/test/c/123');
 });
+
