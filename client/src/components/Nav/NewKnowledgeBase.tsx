@@ -8,13 +8,11 @@ import {
   Input,
   Label,
 } from '@librechat/client';
-import { useSetRecoilState } from 'recoil';
 import { FolderPlus } from 'lucide-react';
 import { useLocalize } from '~/hooks';
-import { knowledgeBasesState, type KnowledgeBase } from '~/store/knowledgeBases';
 import { useQueryClient } from '@tanstack/react-query';
-import { QueryKeys } from 'librechat-data-provider';
 import { useToastContext } from '@librechat/client';
+import { dataService, QueryKeys } from 'librechat-data-provider';
 
 export default function NewKnowledgeBase({
   toggleNav,
@@ -27,7 +25,6 @@ export default function NewKnowledgeBase({
   
   const navigate = useNavigate();
   const localize = useLocalize();
-  const setKnowledgeBases = useSetRecoilState(knowledgeBasesState);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const queryClient = useQueryClient();
@@ -39,15 +36,7 @@ export default function NewKnowledgeBase({
       return;
     }
     try {
-      const res = await fetch('/api/knowledge-bases', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: trimmed }),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to create knowledge base');
-      }
-      const kb = await res.json();
+      const kb = await dataService.createKnowledgeBase({name: trimmed});
       const displayId = kb.slug || kb._id || trimmed;
       const displayName = kb.name || trimmed;
       queryClient.invalidateQueries([QueryKeys.knowledgeBases]);
@@ -61,7 +50,7 @@ export default function NewKnowledgeBase({
     }
     setOpen(false);
     setName('');
-  }, [name, navigate, isSmallScreen, toggleNav, setKnowledgeBases]);
+  }, [name, navigate, isSmallScreen, toggleNav]);
 
   return (
     <>

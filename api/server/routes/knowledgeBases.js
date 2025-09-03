@@ -25,9 +25,11 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, description, slug } = req.body || {};
-    if (!name || typeof name !== 'string' || name.trim() === '') {
+    if (!req.user || !req.user.id) return res.status(401).json({ message: 'Unauthorized' });
+
+    if (!name || typeof name !== 'string' || name.trim() === '')
       return res.status(400).json({ message: 'Name is required' });
-    }
+
     const kb = await createKnowledgeBase({
       user: req.user.id,
       name: name.trim(),
@@ -36,6 +38,7 @@ router.post('/', async (req, res) => {
     });
     res.status(201).json(kb);
   } catch (error) {
+    if (error.code === 11000) res.status(409).json({ message: 'Name Already exists' });
     res.status(500).json({ message: 'Failed to create knowledge base', error: error.message });
   }
 });
@@ -70,4 +73,3 @@ router.delete('/:id', async (req, res) => {
 });
 
 module.exports = router;
-

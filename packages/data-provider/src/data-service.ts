@@ -959,3 +959,5 @@ export function getGraphApiToken(params: q.GraphTokenParams): Promise<q.GraphTok
 
 // Knowledge Bases
 export const listKnowledgeBases = (): Promise<any[]> => request.get(endpoints.knowledgeBases());
+
+export const createKnowledgeBase = (data: { name: string; description?: string; slug?: string }) => request.post(endpoints.knowledgeBases(), data);
