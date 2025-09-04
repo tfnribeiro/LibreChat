@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useGetModelsQuery } from 'librechat-data-provider/react-query';
 import {
   Constants,
@@ -35,6 +35,7 @@ import store from '~/store';
 
 const useNewConvo = (index = 0) => {
   const navigate = useNavigate();
+  const { kbId } = useParams();
   const [searchParams] = useSearchParams();
   const { data: startupConfig } = useGetStartupConfig();
   const clearAllConversations = store.useClearConvoState();
@@ -193,18 +194,20 @@ const useNewConvo = (index = 0) => {
           if (appTitle) {
             document.title = appTitle;
           }
-          const path = `/c/${Constants.NEW_CONVO}${getParams()}`;
+          const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
+          const path = `${basePath}/${Constants.NEW_CONVO}${getParams()}`;
           navigate(path, { state: { focusChat: true } });
           return;
         }
 
-        const path = `/c/${conversation.conversationId}${getParams()}`;
+        const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
+        const path = `${basePath}/${conversation.conversationId}${getParams()}`;
         navigate(path, {
           replace: true,
           state: disableFocus ? {} : { focusChat: true },
         });
       },
-    [endpointsConfig, defaultPreset, assistantsListMap, modelsQuery.data],
+    [endpointsConfig, defaultPreset, assistantsListMap, modelsQuery.data, kbId],
   );
 
   const newConversation = useCallback(

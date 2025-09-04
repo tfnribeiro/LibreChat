@@ -36,6 +36,7 @@ import useStepHandler from '~/hooks/SSE/useStepHandler';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { MESSAGE_UPDATE_INTERVAL } from '~/common';
 import { useLiveAnnouncer } from '~/Providers';
+import { dataService } from 'librechat-data-provider';
 
 type TSyncData = {
   sync: boolean;
@@ -434,6 +435,8 @@ export default function useEventHandlers({
     ],
   );
 
+  const { kbId, conversationId: paramId } = useParams();
+
   const finalHandler = useCallback(
     (data: TFinalResData, submission: EventSubmission) => {
       const { requestMessage, responseMessage, conversation, runMessages } = data;
@@ -485,6 +488,11 @@ export default function useEventHandlers({
           submission.initialResponse?.content?.[0]?.['text']?.value ||
         !!responseMessage?.content?.[0]?.['tool_call']?.auth;
 
+      if (isNewConvo && kbId) {
+        // attach new conversation to active knowledge base (fire-and-forget)
+        dataService.addConvoToKnowledgeBase(kbId, conversation.conversationId).catch(() => {});
+      }
+
       /** Handle edge case where stream is cancelled before any response, which creates a blank page */
       if (!conversation.conversationId && hasNoResponse) {
         const currentConvoId =
@@ -501,8 +509,13 @@ export default function useEventHandlers({
         setDraft({ id: currentConvoId, value: requestMessage?.text });
         setIsSubmitting(false);
         if (isNewChat) {
-          navigate(`/c/${Constants.NEW_CONVO}`, { replace: true, state: { focusChat: true } });
+          const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
+          navigate(`${basePath}/${Constants.NEW_CONVO}`, {
+            replace: true,
+            state: { focusChat: true },
+          });
         }
+
         return;
       }
 
@@ -571,8 +584,14 @@ export default function useEventHandlers({
           );
         }
 
-        if (location.pathname === `/c/${Constants.NEW_CONVO}`) {
-          navigate(`/c/${conversation.conversationId}`, { replace: true });
+        if (
+          location.pathname === `/c/${Constants.NEW_CONVO}` ||
+          (kbId &&
+            location.pathname ===
+              `/knowledge-bases/${encodeURIComponent(kbId)}/c/${Constants.NEW_CONVO}`)
+        ) {
+          const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
+          navigate(`${basePath}/${conversation.conversationId}`, { replace: true });
         }
       }
 
