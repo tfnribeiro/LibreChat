@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useMediaQuery } from '@librechat/client';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useParams } from 'react-router-dom';
 import { getConfigDefaults, PermissionTypes, Permissions } from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import ModelSelector from './Menus/Endpoints/ModelSelector';
@@ -17,6 +17,7 @@ const defaultInterface = getConfigDefaults().interface;
 export default function Header() {
   const { data: startupConfig } = useGetStartupConfig();
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
+  const {kbId} = useParams();
 
   const interfaceConfig = useMemo(
     () => startupConfig?.interface ?? defaultInterface,
@@ -68,6 +69,7 @@ export default function Header() {
                 <TemporaryChat />
               </>
             )}
+            {kbId && `You are chatting with ${encodeURIComponent(kbId)}`}
           </div>
         </div>
         {!isSmallScreen && (

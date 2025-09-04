@@ -27,7 +27,7 @@ import useGetSender from '~/hooks/Conversations/useGetSender';
 import store, { useGetEphemeralAgent } from '~/store';
 import { getEndpointField, logger } from '~/utils';
 import useUserKey from '~/hooks/Input/useUserKey';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthContext } from '~/hooks';
 
 const logChatRequest = (request: Record<string, unknown>) => {
@@ -70,7 +70,7 @@ export default function useChatFunctions({
   const { getExpiry } = useUserKey(immutableConversation?.endpoint ?? '');
   const setShowStopButton = useSetRecoilState(store.showStopButtonByIndex(index));
   const resetLatestMultiMessage = useResetRecoilState(store.latestMessageFamily(index + 1));
-
+  const { kbId } = useParams();
   const ask: TAskFunction = (
     {
       text,
@@ -147,7 +147,8 @@ export default function useChatFunctions({
       parentMessageId = Constants.NO_PARENT;
       currentMessages = [];
       conversationId = null;
-      navigate('/c/new', { state: { focusChat: true } });
+      const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
+      navigate(`${basePath}/new`, { state: { focusChat: true } });
     }
 
     const targetParentMessageId = isRegenerate ? messageId : latestMessage?.parentMessageId;

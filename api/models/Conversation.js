@@ -158,7 +158,15 @@ module.exports = {
   },
   getConvosByCursor: async (
     user,
-    { cursor, limit = 25, isArchived = false, tags, search, order = 'desc' } = {},
+    {
+      cursor,
+      limit = 25,
+      isArchived = false,
+      tags,
+      search,
+      order = 'desc',
+      additionalFilters,
+    } = {},
   ) => {
     const filters = [{ user }];
     if (isArchived) {
@@ -188,7 +196,9 @@ module.exports = {
         return { message: 'Error during meiliSearch' };
       }
     }
-
+    if (additionalFilters && Object.keys(additionalFilters).length > 0) {
+      filters.push(additionalFilters);
+    }
     if (cursor) {
       filters.push({ updatedAt: { $lt: new Date(cursor) } });
     }

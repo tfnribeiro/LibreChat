@@ -960,4 +960,11 @@ export function getGraphApiToken(params: q.GraphTokenParams): Promise<q.GraphTok
 // Knowledge Bases
 export const listKnowledgeBases = (): Promise<any[]> => request.get(endpoints.knowledgeBases());
 
-export const createKnowledgeBase = (data: { name: string; description?: string; slug?: string }) => request.post(endpoints.knowledgeBases(), data);
+export const createKnowledgeBase = (data: { name: string; description?: string; slug?: string }) =>
+  request.post(endpoints.knowledgeBases(), data);
+export const getKnowledgeBaseConversations = (
+  idOrSlug: string,
+  params?: { cursor?: string; limit?: number },
+) => request.get(endpoints.knowledgeBaseConversations(idOrSlug, params?.cursor, params?.limit));
+export const addConvoToKnowledgeBase = (idOrSlug: string, conversationId: string) =>
+  request.post(endpoints.addConversationToKnowledgeBase(idOrSlug), { conversationId });

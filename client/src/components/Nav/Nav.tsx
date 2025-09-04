@@ -11,7 +11,8 @@ import {
   useLocalStorage,
   useNavScrolling,
 } from '~/hooks';
-import { useConversationsInfiniteQuery, useKnowledgeBasesQuery  } from '~/data-provider';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useConversationsInfiniteQuery, useKnowledgeBasesQuery } from '~/data-provider';
 import { Conversations } from '~/components/Conversations';
 import SearchBar from './SearchBar';
 import NewChat from './NewChat';
@@ -63,6 +64,10 @@ const Nav = memo(
     const [showLoading, setShowLoading] = useState(false);
     const [tags, setTags] = useState<string[]>([]);
 
+    const params = useParams();
+    const navigate = useNavigate();
+    const activeKBId = params.kbId || '';
+
     const hasAccessToBookmarks = useHasAccess({
       permissionType: PermissionTypes.BOOKMARKS,
       permission: Permissions.USE,
@@ -107,15 +112,17 @@ const Nav = memo(
       isFetchingNext: isFetchingNextPage,
     });
 
-
     const conversations = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.conversations) : [];
     }, [data]);
 
-    const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated })
+    const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated });
 
-    const mappedKBs = useMemo(() => kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] })), [kbs]);
-    
+    const mappedKBs = useMemo(
+      () => kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] })),
+      [kbs],
+    );
+
     const toggleNavVisible = useCallback(() => {
       setNavVisible((prev: boolean) => {
         localStorage.setItem('navVisible', JSON.stringify(!prev));
@@ -228,23 +235,31 @@ const Nav = memo(
                       />
                       {mappedKBs.length > 0 && (
                         <div className="mb-2" data-testid="knowledgebase-nav">
-                          {mappedKBs.map((p) => (
-                            <details key={p.id} className="px-2">
-                              <summary className="cursor-pointer list-none text-sm font-medium text-text-primary">
-                                {p.name}
-                              </summary>
-                              <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
-                                {p.conversations.map((c) => (
-                                  <li key={c.id}>
-                                    <a href={`/knowledge-bases/${p.id}/c/${c.id}`}>{c.title}</a>
-                                  </li>
-                                ))}
-                              </ul>
-                            </details>
-                          ))}
+                          {mappedKBs.map((kb) => {
+                            const isActive = activeKBId === kb.id;
+                            return (
+                              <details key={kb.id} className="px-2">
+                                <summary
+                                  className={`cursor-pointer list-none text-sm font-medium text-text-primary ${isActive ? 'bg-surface-active' : ''}`}
+                                  onClick={() =>
+                                    navigate(`/knowledge-bases/${encodeURIComponent(kb.id)}/c`)
+                                  }
+                                >
+                                  {kb.name}
+                                </summary>
+                                <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
+                                  {kb.conversations.map((c) => (
+                                    <li key={c.id}>
+                                      <a href={`/knowledge-bases/${kb.id}/c/${c.id}`}>{c.title}</a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </details>
+                            );
+                          })}
                         </div>
                       )}
-                      <Conversations
+                      {/** <Conversations
                         conversations={conversations}
                         moveToTop={moveToTop}
                         toggleNav={itemToggleNav}
@@ -252,7 +267,7 @@ const Nav = memo(
                         loadMoreConversations={loadMoreConversations}
                         isLoading={isFetchingNextPage || showLoading || isLoading}
                         isSearchLoading={isSearchLoading}
-                      />
+                      /> */}
                     </div>
                     <Suspense fallback={null}>
                       <AccountSettings />

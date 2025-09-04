@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys, Constants } from 'librechat-data-provider';
 import { TooltipAnchor, NewChatIcon, MobileSidebar, Sidebar, Button } from '@librechat/client';
@@ -25,12 +25,14 @@ export default function NewChat({
   const { newConversation: newConvo } = useNewConvo(index);
   const navigate = useNavigate();
   const localize = useLocalize();
+  const { kbId } = useParams();
   const { conversation } = store.useCreateConversationAtom(index);
 
   const clickHandler: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
+      const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
       if (e.button === 0 && (e.ctrlKey || e.metaKey)) {
-        window.open('/c/new', '_blank');
+        window.open(`${basePath}/new`, '_blank');
         return;
       }
       queryClient.setQueryData<TMessage[]>(
@@ -39,7 +41,7 @@ export default function NewChat({
       );
       queryClient.invalidateQueries([QueryKeys.messages]);
       newConvo();
-      navigate('/c/new', { state: { focusChat: true } });
+      navigate(`${basePath}/new`, { state: { focusChat: true } });
       if (isSmallScreen) {
         toggleNav();
       }

@@ -1,15 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { requireJwtAuth } = require('~/server/middleware');
+const { getConvosByCursor } = require('~/models/Conversation');
 const { KnowledgeBase } = require('~/db/models');
 const {
   createKnowledgeBase,
   deleteKnowledgeBase,
   updateKnowledgeBaseName,
   updateKnowledgeBaseDescription,
+  addConversationToKnowledgeBase,
+  removeConversationFromKnowledgeBase,
 } = require('~/models/KnowledgeBase');
 
 router.use(requireJwtAuth);
+
+async function getKB(req, idOrSlug) {
+  const kbQuery = mongoose.isValidObjectId(idOrSlug)
+    ? { _id: idOrSlug, user: req.user.id }
+    : { slug: idOrSlug, user: req.user.id };
+
+  const kb = await KnowledgeBase.findOne(kbQuery).lean();
+  return kb;
+}
 
 // List knowledge bases for current user
 router.get('/', async (req, res) => {
@@ -69,6 +82,40 @@ router.delete('/:id', async (req, res) => {
     res.status(200).json(kb);
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete knowledge base', error: error.message });
+  }
+});
+
+router.post('/:idOrSlug/addConversation', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const { conversationId } = req.body || {};
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+    const updated = await addConversationToKnowledgeBase(kb._id, conversationId);
+    res.status(201).json(updated);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Failed to add conversation to KB.', error: error.message });
+  }
+});
+
+router.post('/:idOrSlug/removeConversation', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const { conversationId } = req.body || {};
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+    const updated = await removeConversationFromKnowledgeBase(kb._id, conversationId);
+    res.status(200).json(updated);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Failed to remove conversation to KB.', error: error.message });
   }
 });
 
