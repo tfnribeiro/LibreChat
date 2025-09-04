@@ -346,9 +346,3 @@ export const graphToken = (scopes: string) =>
   `/api/auth/graph-token?scopes=${encodeURIComponent(scopes)}`;
 
 export const knowledgeBases = () => '/api/knowledge-bases';
-export const knowledgeBaseConversations = (idOrSlug: string, cursor?: string, limit?: number) =>
-  `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/conversations${cursor || limit ? `?${[cursor ? `cursor=${encodeURIComponent(cursor)}` : '', limit ? `limit=${limit}` : ''].filter(Boolean).join('&')}` : ''}`;
-export const addConversationToKnowledgeBase = (idOrSlug: string) =>
-  `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/addConversation`;
-export const removeConversationFromKnowledgeBase = (idOrSlug: string) =>
-  `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/removeConversation`;

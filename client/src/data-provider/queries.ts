@@ -29,6 +29,7 @@ import type {
   TCheckUserKeyResponse,
   SharedLinksListParams,
   SharedLinksResponse,
+
 } from 'librechat-data-provider';
 import type { ConversationCursorData } from '~/utils/convos';
 import { findConversationInInfinite } from '~/utils';
@@ -91,15 +92,8 @@ export const useGetConvoIdQuery = (
   );
 };
 
-export const useKnowledgeBasesQuery = (config?: UseQueryOptions<any[]>) =>
-  useQuery<any[]>([QueryKeys.knowledgeBases], () => dataService.listKnowledgeBases(), {
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-    ...(config || {}),
-  });
+export const useKnowledgeBasesQuery = (config?: UseQueryOptions<any[]>) => useQuery<any[]>([QueryKeys.knowledgeBases], () => dataService.listKnowledgeBases(), { staleTime: 5 * 60 * 1000, cacheTime: 30 * 60 * 1000, refetchOnWindowFocus: false, refetchOnReconnect: false, refetchOnMount: false, ...(config || {}) });
+
 
 export const useConversationsInfiniteQuery = (
   params: ConversationListParams,
@@ -548,22 +542,3 @@ export const useUserTermsQuery = (
     ...config,
   });
 };
-
-export const useKnowledgeBaseConversationsQuery = (
-  kbId: string,
-  params?: { cursor?: string; limit?: number },
-  config?: UseInfiniteQueryOptions<ConversationListResponse, unknown>,
-) =>
-  useInfiniteQuery<ConversationListResponse>({
-    queryKey: [QueryKeys.conversation, 'kb', kbId, params],
-    queryFn: ({ pageParam }) =>
-      dataService.getKnowledgeBaseConversations(kbId, {
-        cursor: pageParam?.toString(),
-        limit: params?.limit,
-      }),
-    getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
-    keepPreviousData: true,
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
-    ...(config || {}),
-  });

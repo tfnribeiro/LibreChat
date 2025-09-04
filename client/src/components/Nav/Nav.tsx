@@ -18,7 +18,6 @@ import NewChat from './NewChat';
 import { cn } from '~/utils';
 import NewKnowledgeBase from './NewKnowledgeBase';
 import store from '~/store';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const BookmarkNav = lazy(() => import('./Bookmarks/BookmarkNav'));
 const AccountSettings = lazy(() => import('./AccountSettings'));
@@ -57,8 +56,7 @@ const Nav = memo(
   }) => {
     const localize = useLocalize();
     const { isAuthenticated } = useAuthContext();
-    const params = useParams();
-    const navigate = useNavigate();
+
     const [navWidth, setNavWidth] = useState(NAV_WIDTH_DESKTOP);
     const isSmallScreen = useMediaQuery('(max-width: 768px)');
     const [newUser, setNewUser] = useLocalStorage('newUser', true);
@@ -116,13 +114,8 @@ const Nav = memo(
 
     const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated })
 
-    // Track active knowledge base from URL
-    const activeKBId = params.kbId || '';
+    const mappedKBs = useMemo(() => kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] })), [kbs]);
     
-    const mappedKBs = useMemo(() => {
-      return kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] }));
-    }, [kbs]);
-
     const toggleNavVisible = useCallback(() => {
       setNavVisible((prev: boolean) => {
         localStorage.setItem('navVisible', JSON.stringify(!prev));
@@ -235,30 +228,23 @@ const Nav = memo(
                       />
                       {mappedKBs.length > 0 && (
                         <div className="mb-2" data-testid="knowledgebase-nav">
-                          {mappedKBs.map((kb) => {
-                            // Check if this KB is the active one based on URL params
-                            const isActive = activeKBId === kb.id;
-                            return (
-                              <details key={kb.id} className="px-2">
-                                <summary
-                                  className={`cursor-pointer list-none text-sm font-medium text-text-primary ${isActive ? "bg-surface-active" : ""}`}
-                                  onClick={() => navigate(`/knowledge-bases/${encodeURIComponent(kb.id)}/c`)}
-                                >
-                                  {kb.name}
-                                </summary>
-                                <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
-                                  {kb.conversations.map((c) => (
-                                    <li key={c.id}>
-                                      <Link to={`/knowledge-bases/${encodeURIComponent(kb.id)}/c/${c.id}`}>{c.title}</Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </details>
-                            );
-                          })}
+                          {mappedKBs.map((p) => (
+                            <details key={p.id} className="px-2">
+                              <summary className="cursor-pointer list-none text-sm font-medium text-text-primary">
+                                {p.name}
+                              </summary>
+                              <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
+                                {p.conversations.map((c) => (
+                                  <li key={c.id}>
+                                    <a href={`/knowledge-bases/${p.id}/c/${c.id}`}>{c.title}</a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                          ))}
                         </div>
                       )}
-                      {/*<Conversations
+                      <Conversations
                         conversations={conversations}
                         moveToTop={moveToTop}
                         toggleNav={itemToggleNav}
@@ -266,7 +252,7 @@ const Nav = memo(
                         loadMoreConversations={loadMoreConversations}
                         isLoading={isFetchingNextPage || showLoading || isLoading}
                         isSearchLoading={isSearchLoading}
-                      />*/}
+                      />
                     </div>
                     <Suspense fallback={null}>
                       <AccountSettings />

@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Files } from 'lucide-react';
 import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { useLocalize } from '~/hooks';
-import { useKnowledgeBaseConversationsQuery } from '~/data-provider';
 
 interface KnowledgeBaseRouteProps {
   testConversations?: { id: string; title: string }[];
@@ -18,14 +17,7 @@ export default function KnowledgeBaseRoute({
   const localize = useLocalize();
   const { kbId = '' } = useParams();
   const [files] = useState(testFiles);
-  const { data, fetchNextPage, isFetchingNextPage, isLoading } =
-  useKnowledgeBaseConversationsQuery(kbId, { limit: 25 });
-
-  const conversations = useMemo(
-    () => (data?.pages ?? []).flatMap((page) => page.conversations),
-    [data],
-  );
-
+  const [conversations] = useState(testConversations);
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -54,17 +46,13 @@ export default function KnowledgeBaseRoute({
               <li>{localize('com_ui_no_chats_yet')}</li>
             </ul>
           ) : (
-              <div>
-                {isLoading && <div>Loading…</div>}
-                {!isLoading && conversations.length === 0 && <div>{localize('com_ui_no_chats_yet')}</div>}
-                <ul>
-                  {conversations.map((c) => (
-                    <li key={c.conversationId}>
-                      <Link to={`/knowledge-bases/${encodeURIComponent(kbId)}/c/${c.conversationId}`}>{c.title}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <ul className="space-y-2 text-sm text-text-secondary">
+              {conversations.map((c) => (
+                <li key={c.id}>
+                  <Link to={`/knowledge-bases/${kbId}/c/${c.id}`}>{c.title}</Link>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>

@@ -103,8 +103,7 @@ export default function Conversation({
     if (ctrlOrMetaKey) {
       toggleNav();
       const baseUrl = window.location.origin;
-      const basePath = params.kbId ? `/knowledge-bases/${params.kbId}/c` : '/c';
-      const path = `${basePath}/${conversationId}`;
+      const path = `/c/${conversationId}`;
       window.open(baseUrl + path, '_blank');
       return;
     }

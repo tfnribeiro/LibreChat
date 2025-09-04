@@ -156,18 +156,9 @@ module.exports = {
       throw new Error('Failed to save conversations in bulk.');
     }
   },
-  // add `additionalFilters` to the params
   getConvosByCursor: async (
     user,
-    {
-      cursor,
-      limit = 25,
-      isArchived = false,
-      tags,
-      search,
-      order = 'desc',
-      additionalFilters,
-    } = {},
+    { cursor, limit = 25, isArchived = false, tags, search, order = 'desc' } = {},
   ) => {
     const filters = [{ user }];
     if (isArchived) {
@@ -182,8 +173,24 @@ module.exports = {
 
     filters.push({ $or: [{ expiredAt: null }, { expiredAt: { $exists: false } }] });
 
-    if (additionalFilters && Object.keys(additionalFilters).length > 0) {
-      filters.push(additionalFilters);
+    if (search) {
+      try {
+        const meiliResults = await Conversation.meiliSearch(search);
+        const matchingIds = Array.isArray(meiliResults.hits)
+          ? meiliResults.hits.map((result) => result.conversationId)
+          : [];
+        if (!matchingIds.length) {
+          return { conversations: [], nextCursor: null };
+        }
+        filters.push({ conversationId: { $in: matchingIds } });
+      } catch (error) {
+        logger.error('[getConvosByCursor] Error during meiliSearch', error);
+        return { message: 'Error during meiliSearch' };
+      }
+    }
+
+    if (cursor) {
+      filters.push({ updatedAt: { $lt: new Date(cursor) } });
     }
 
     const query = filters.length === 1 ? filters[0] : { $and: filters };
@@ -209,7 +216,6 @@ module.exports = {
       return { message: 'Error getting conversations' };
     }
   },
-
   getConvosQueried: async (user, convoIds, cursor = null, limit = 25) => {
     try {
       if (!convoIds?.length) {

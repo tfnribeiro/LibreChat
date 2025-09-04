@@ -1,5 +1,5 @@
 import { useSetRecoilState } from 'recoil';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys, Constants, dataService } from 'librechat-data-provider';
 import type { TConversation, TEndpointsConfig, TModelsConfig } from 'librechat-data-provider';
@@ -8,7 +8,6 @@ import store from '~/store';
 
 const useNavigateToConvo = (index = 0) => {
   const navigate = useNavigate();
-  const { kbId } = useParams();
   const queryClient = useQueryClient();
   const clearAllConversations = store.useClearConvoState();
   const setSubmission = useSetRecoilState(store.submissionByIndex(index));
@@ -26,14 +25,12 @@ const useNavigateToConvo = (index = 0) => {
       );
       logger.log('conversation', 'Fetched fresh conversation data', data);
       setConversation(data);
-      const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
-      navigate(`${basePath}/${conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
+      navigate(`/c/${conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
     } catch (error) {
       console.error('Error fetching conversation data on navigation', error);
       if (conversation) {
         setConversation(conversation as TConversation);
-        const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
-        navigate(`${basePath}/${conversationId}`, { state: { focusChat: true } });
+        navigate(`/c/${conversationId}`, { state: { focusChat: true } });
       }
     }
   };
@@ -88,8 +85,7 @@ const useNavigateToConvo = (index = 0) => {
       fetchFreshData(convo);
     } else {
       setConversation(convo);
-      const basePath = kbId ? `/knowledge-bases/${encodeURIComponent(kbId)}/c` : '/c';
-      navigate(`${basePath}/${convo.conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
+      navigate(`/c/${convo.conversationId ?? Constants.NEW_CONVO}`, { state: { focusChat: true } });
     }
   };
 
