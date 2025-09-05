@@ -179,7 +179,7 @@ export default function useEventHandlers({
   const location = useLocation();
 
   const lastAnnouncementTimeRef = useRef(Date.now());
-  const { conversationId: paramId } = useParams();
+  const { conversationId: paramId, kbId } = useParams();
   const { token } = useAuthContext();
 
   const contentHandler = useContentHandler({ setMessages, getMessages });
@@ -444,7 +444,6 @@ export default function useEventHandlers({
         isRegenerate = false,
         isTemporary = false,
       } = submission;
-      const { kbId, conversationId: paramId } = useParams();
 
       if (responseMessage?.attachments && responseMessage.attachments.length > 0) {
         // Process each attachment through the attachmentHandler
@@ -482,8 +481,10 @@ export default function useEventHandlers({
         queryClient.setQueryData<TMessage[]>([QueryKeys.messages, id], _messages);
       };
 
+      console.log(`Is new convo?: ${isNewConvo}, conv: ${conversation.conversationId}`);
       if (isNewConvo && kbId) {
         // attach new conversation to active knowledge base (fire-and-forget)
+        console.log(`Adding conversation to KB: ${kbId}, conv: ${conversation.conversationId}`);
         dataService.addConvoToKnowledgeBase(kbId, conversation.conversationId).catch(() => {});
       }
       const hasNoResponse =
