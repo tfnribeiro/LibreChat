@@ -12,7 +12,11 @@ import {
   useNavScrolling,
 } from '~/hooks';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useConversationsInfiniteQuery, useKnowledgeBasesQuery } from '~/data-provider';
+import {
+  useConversationsInfiniteQuery,
+  useKnowledgeBasesQuery,
+  useKnowledgeBaseConversationsQuery,
+} from '~/data-provider';
 import { Conversations } from '~/components/Conversations';
 import SearchBar from './SearchBar';
 import NewChat from './NewChat';
@@ -117,9 +121,15 @@ const Nav = memo(
     }, [data]);
 
     const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated });
-
+    console.log('Current KBs');
+    console.log(kbs);
     const mappedKBs = useMemo(
-      () => kbs.map((kb) => ({ id: kb.slug || kb._id, name: kb.name, conversations: [] })),
+      () =>
+        kbs.map((kb) => ({
+          id: kb.slug || kb._id,
+          name: kb.name,
+          conversations: kb.conversations,
+        })),
       [kbs],
     );
 
@@ -247,13 +257,17 @@ const Nav = memo(
                                 >
                                   {kb.name}
                                 </summary>
-                                <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
-                                  {kb.conversations.map((c) => (
-                                    <li key={c.id}>
-                                      <a href={`/knowledge-bases/${kb.id}/c/${c.id}`}>{c.title}</a>
-                                    </li>
-                                  ))}
-                                </ul>
+                                {kb.conversations && (
+                                  <ul className="ml-4 mt-1 space-y-1 text-sm text-text-secondary">
+                                    {kb.conversations.map((c) => (
+                                      <li key={c.conversationId}>
+                                        <a href={`/knowledge-bases/${kb.id}/c/${c.conversationId}`}>
+                                          {c.title}
+                                        </a>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
                               </details>
                             );
                           })}

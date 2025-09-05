@@ -34,9 +34,7 @@ const knowledgeBase: Schema<IMongoKnowledgeBase> = new Schema(
       validate: {
         validator: async function (ids: mongoose.Types.ObjectId[]) {
           if (!Array.isArray(ids) || ids.length === 0) return true;
-          const count = await mongoose
-            .model('Conversation')
-            .countDocuments({ _id: { $in: ids } });
+          const count = await mongoose.model('Conversation').countDocuments({ _id: { $in: ids } });
           return count === ids.length;
         },
         message: 'One or more referenced conversations do not exist',
@@ -51,18 +49,22 @@ const knowledgeBase: Schema<IMongoKnowledgeBase> = new Schema(
       validate: {
         validator: async function (ids: mongoose.Types.ObjectId[]) {
           if (!Array.isArray(ids) || ids.length === 0) return true;
-          const count = await mongoose
-            .model('File')
-            .countDocuments({ _id: { $in: ids } });
+          const count = await mongoose.model('File').countDocuments({ _id: { $in: ids } });
           return count === ids.length;
         },
         message: 'One or more referenced files do not exist',
       },
     },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
 
 knowledgeBase.index({ user: 1, name: 1 }, { unique: true });
+knowledgeBase.virtual('conversations', {
+  ref: 'Conversation',
+  localField: 'conversationIds',
+  foreignField: '_id',
+  justOne: false,
+});
 
 export default knowledgeBase;

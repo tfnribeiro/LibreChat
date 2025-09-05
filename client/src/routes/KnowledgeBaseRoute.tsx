@@ -4,20 +4,18 @@ import { Files } from 'lucide-react';
 import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { useLocalize } from '~/hooks';
+import { useKnowledgeBaseConversationsQuery } from '~/data-provider';
+import { dataService } from 'librechat-data-provider/dist/types';
 
-interface KnowledgeBaseRouteProps {
-  testConversations?: { id: string; title: string }[];
-  testFiles?: string[];
-}
-
-export default function KnowledgeBaseRoute({
-  testConversations = [],
-  testFiles = [],
-}: KnowledgeBaseRouteProps = {}) {
+export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   const localize = useLocalize();
   const { kbId = '' } = useParams();
-  const [files] = useState(testFiles);
-  const [conversations] = useState(testConversations);
+  const [files] = useState([]);
+  const { data, isLoading, isError, fetchNextPage, hasNextPage } =
+    useKnowledgeBaseConversationsQuery(kbId, { limit: 20 });
+  console.log(data);
+  const conversations = data?.pages.flatMap((p) => p.conversations) ?? [];
+  console.log(conversations);
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -29,7 +27,7 @@ export default function KnowledgeBaseRoute({
           {files.length === 0 ? (
             <div className="flex flex-col items-center text-text-secondary">
               <Files data-testid="file-icon" className="mb-2 h-12 w-12" />
-              <p className="text-sm">{localize('com_ui_drag_drop')}</p>
+              <p className="text-sm">{localize('com_ui_drag_drop_kb')}</p>
             </div>
           ) : (
             <ul className="text-sm text-text-secondary">
@@ -39,22 +37,24 @@ export default function KnowledgeBaseRoute({
             </ul>
           )}
         </DragDropWrapper>
-        <div className="max-h-40 overflow-y-auto">
-          <h3 className="mb-2 text-sm font-medium">{localize('com_ui_past_chats')}</h3>
-          {conversations.length === 0 ? (
-            <ul className="space-y-2 text-sm text-text-secondary">
-              <li>{localize('com_ui_no_chats_yet')}</li>
-            </ul>
-          ) : (
-            <ul className="space-y-2 text-sm text-text-secondary">
-              {conversations.map((c) => (
-                <li key={c.id}>
-                  <Link to={`/knowledge-bases/${kbId}/c/${c.id}`}>{c.title}</Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {conversations && (
+          <div className="max-h-40 min-h-32 overflow-y-auto">
+            <h3 className="mb-2 text-sm font-medium">{localize('com_ui_past_chats')}</h3>
+            {conversations.length === 0 ? (
+              <ul className="space-y-2 text-sm text-text-secondary">
+                <li>{localize('com_ui_no_chats_yet')}</li>
+              </ul>
+            ) : (
+              <ul className="space-y-2 text-sm text-text-secondary">
+                {conversations.map((c) => (
+                  <li key={c.id}>
+                    <Link to={`/knowledge-bases/${kbId}/c/${c.conversationId}`}>{c.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

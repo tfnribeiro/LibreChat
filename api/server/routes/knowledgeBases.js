@@ -27,7 +27,15 @@ async function getKB(req, idOrSlug) {
 // List knowledge bases for current user
 router.get('/', async (req, res) => {
   try {
-    const kbs = await KnowledgeBase.find({ user: req.user.id }).sort({ createdAt: -1 });
+    const limit = 5;
+    const kbs = await KnowledgeBase.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'conversations',
+        select: 'title _id',
+        options: { limit: limit },
+      });
+
     res.status(200).json(kbs);
   } catch (error) {
     res.status(500).json({ message: 'Failed to retrieve knowledge bases', error: error.message });
