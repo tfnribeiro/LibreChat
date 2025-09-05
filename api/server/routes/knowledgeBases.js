@@ -24,6 +24,39 @@ async function getKB(req, idOrSlug) {
   return kb;
 }
 
+// Get conversations for a specific knowledge base with cursor pagination
+router.get('/:idOrSlug/conversations', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const { cursor, limit } = req.query;
+
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+
+    const limitNum = typeof limit !== 'undefined' ? parseInt(limit, 10) : undefined;
+
+    const result = await getConvosByCursor(req.user.id, {
+      cursor: cursor || undefined,
+      limit: Number.isFinite(limitNum) ? limitNum : undefined,
+      additionalFilters: {
+        _id: { $in: Array.isArray(kb.conversationIds) ? kb.conversationIds : [] },
+      },
+    });
+
+    // Ensure consistent response shape
+    return res.status(200).json({
+      conversations: result.conversations || [],
+      nextCursor: result.nextCursor ?? null,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Failed to retrieve knowledge base conversations', error: error.message });
+  }
+});
+
 // List knowledge bases for current user
 router.get('/', async (req, res) => {
   try {
@@ -32,7 +65,7 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .populate({
         path: 'conversations',
-        select: 'title _id',
+        select: 'title conversationId _id',
         options: { limit: limit },
       });
 

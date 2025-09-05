@@ -248,7 +248,7 @@ const Nav = memo(
                           {mappedKBs.map((kb) => {
                             const isActive = activeKBId === kb.id;
                             return (
-                              <details key={kb.id} className="px-2">
+                              <details key={kb.id} className="px-2" open>
                                 <summary
                                   className={`cursor-pointer list-none text-sm font-medium text-text-primary ${isActive ? 'bg-surface-active' : ''}`}
                                   onClick={() =>
@@ -273,7 +273,9 @@ const Nav = memo(
                           })}
                         </div>
                       )}
-                      {/** <Conversations
+                      <br />
+                      <hr />
+                      <Conversations
                         conversations={conversations}
                         moveToTop={moveToTop}
                         toggleNav={itemToggleNav}
@@ -281,7 +283,7 @@ const Nav = memo(
                         loadMoreConversations={loadMoreConversations}
                         isLoading={isFetchingNextPage || showLoading || isLoading}
                         isSearchLoading={isSearchLoading}
-                      /> */}
+                      />
                     </div>
                     <Suspense fallback={null}>
                       <AccountSettings />
