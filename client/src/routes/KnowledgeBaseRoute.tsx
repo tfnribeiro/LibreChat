@@ -1,27 +1,37 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Files } from 'lucide-react';
 import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { useLocalize } from '~/hooks';
-import { useKnowledgeBaseConversationsQuery } from '~/data-provider';
-import { dataService } from 'librechat-data-provider/dist/types';
-
+import { useKnowledgeBaseConversationsQuery, useKnowledgeBasesQuery } from '~/data-provider';
 export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   const localize = useLocalize();
-  const { kbId = '' } = useParams();
+  const { kbId = '', conversationId = null } = useParams();
   const [files] = useState([]);
   const { data, isLoading, isError, fetchNextPage, hasNextPage } =
     useKnowledgeBaseConversationsQuery(kbId, { limit: 20 });
-  console.log(data);
   const conversations = data?.pages.flatMap((p) => p.conversations) ?? [];
-  console.log(conversations);
+
+  const { data: knowledgeBasesData } = useKnowledgeBasesQuery();
+  const activeKB = useMemo(() => {
+    if (!knowledgeBasesData || !kbId) return null;
+    return knowledgeBasesData.find((kb) => kb.id === kbId || kb.name === kbId) || null;
+  }, [knowledgeBasesData, kbId]);
 
   return (
     <div className="flex h-full w-full flex-col">
-      <div className="flex flex-1 flex-col">
-        <ChatRoute />
-      </div>
+      {conversationId ? (
+        <div className="flex flex-1 flex-col">
+          <ChatRoute />
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col">
+          <h1>HumaRAG</h1>
+          <p>Welcome to your collection: {activeKB.name}</p>
+        </div>
+      )}
+
       <div className="border-border-subtle flex flex-col gap-4 border-t p-4">
         <DragDropWrapper className="border-border-subtle flex items-center justify-center rounded-md border border-dashed p-4">
           {files.length === 0 ? (

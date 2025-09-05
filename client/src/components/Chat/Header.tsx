@@ -5,7 +5,7 @@ import { getConfigDefaults, PermissionTypes, Permissions } from 'librechat-data-
 import type { ContextType } from '~/common';
 import ModelSelector from './Menus/Endpoints/ModelSelector';
 import { PresetsMenu, HeaderNewChat, OpenSidebar } from './Menus';
-import { useGetStartupConfig } from '~/data-provider';
+import { useGetStartupConfig, useKnowledgeBasesQuery } from '~/data-provider';
 import ExportAndShareMenu from './ExportAndShareMenu';
 import BookmarkMenu from './Menus/BookmarkMenu';
 import { TemporaryChat } from './TemporaryChat';
@@ -17,7 +17,13 @@ const defaultInterface = getConfigDefaults().interface;
 export default function Header() {
   const { data: startupConfig } = useGetStartupConfig();
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
-  const {kbId} = useParams();
+  const { kbId } = useParams();
+
+  const { data: knowledgeBasesData } = useKnowledgeBasesQuery();
+  const activeKB = useMemo(() => {
+    if (!knowledgeBasesData || !kbId) return null;
+    return knowledgeBasesData.find((kb) => kb.id === kbId || kb.name === kbId) || null;
+  }, [knowledgeBasesData, kbId]);
 
   const interfaceConfig = useMemo(
     () => startupConfig?.interface ?? defaultInterface,
@@ -69,7 +75,7 @@ export default function Header() {
                 <TemporaryChat />
               </>
             )}
-            {kbId && `You are chatting with ${encodeURIComponent(kbId)}`}
+            {kbId && `You are chatting with ${activeKB.name}`}
           </div>
         </div>
         {!isSmallScreen && (

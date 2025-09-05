@@ -252,7 +252,7 @@ const Nav = memo(
                                 <summary
                                   className={`cursor-pointer list-none text-sm font-medium text-text-primary ${isActive ? 'bg-surface-active' : ''}`}
                                   onClick={() =>
-                                    navigate(`/knowledge-bases/${encodeURIComponent(kb.id)}/c`)
+                                    navigate(`/knowledge-bases/${encodeURIComponent(kb.id)}/c/`)
                                   }
                                 >
                                   {kb.name}

@@ -116,6 +116,10 @@ export const router = createBrowserRouter([
             element: <AgentMarketplace />,
           },
           {
+            path: 'knowledge-bases/:kbId',
+            element: <KnowledgeBaseRoute />,
+          },
+          {
             path: 'knowledge-bases/:kbId/c/:conversationId?',
             element: <KnowledgeBaseRoute />,
           },

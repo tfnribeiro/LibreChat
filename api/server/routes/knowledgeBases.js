@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
       .populate({
         path: 'conversations',
         select: 'title conversationId _id',
-        options: { limit: limit },
+        options: { limit: limit, sort: { createdAt: -1 } },
       });
 
     res.status(200).json(kbs);
