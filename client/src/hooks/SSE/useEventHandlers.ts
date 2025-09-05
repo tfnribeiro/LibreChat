@@ -484,8 +484,14 @@ export default function useEventHandlers({
       console.log(`Is new convo?: ${isNewConvo}, conv: ${conversation.conversationId}`);
       if (isNewConvo && kbId) {
         // attach new conversation to active knowledge base (fire-and-forget)
-        console.log(`Adding conversation to KB: ${kbId}, conv: ${conversation.conversationId}`);
-        dataService.addConvoToKnowledgeBase(kbId, conversation.conversationId).catch(() => {});
+        const convDbId =
+          (conversation as unknown as { _id?: string })._id ?? conversation.conversationId;
+        console.log(
+          `Adding conversation to KB: ${kbId}, conv: ${conversation.conversationId}, dbId: ${convDbId}`,
+        );
+        dataService.addConvoToKnowledgeBase(kbId, convDbId).catch((e) => {
+          console.error('Failed adding conversation to KB', e);
+        });
       }
       const hasNoResponse =
         responseMessage?.content?.[0]?.['text']?.value ===
