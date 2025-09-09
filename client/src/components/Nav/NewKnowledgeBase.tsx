@@ -36,11 +36,13 @@ export default function NewKnowledgeBase({
       return;
     }
     try {
-      const kb = await dataService.createKnowledgeBase({name: trimmed});
+      const kb = await dataService.createKnowledgeBase({ name: trimmed });
       const displayId = kb.slug || kb._id || trimmed;
       const displayName = kb.name || trimmed;
       queryClient.invalidateQueries([QueryKeys.knowledgeBases]);
-      navigate(`/knowledge-bases/${encodeURIComponent(displayId)}/c/new`);
+      navigate(`/knowledge-bases/${encodeURIComponent(displayId)}/c/new`, {
+        state: { kbName: displayName },
+      });
     } catch (_e) {
       showToast({ message: localize('com_ui_kb_error'), status: 'error' })
     }

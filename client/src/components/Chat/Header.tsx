@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useMediaQuery } from '@librechat/client';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useOutletContext, useParams, useLocation } from 'react-router-dom';
 import { getConfigDefaults, PermissionTypes, Permissions } from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import ModelSelector from './Menus/Endpoints/ModelSelector';
@@ -18,12 +18,16 @@ export default function Header() {
   const { data: startupConfig } = useGetStartupConfig();
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
   const { kbId } = useParams();
+  const location = useLocation();
+  const kbNameFromState = (location.state as { kbName?: string } | null)?.kbName;
 
   const { data: knowledgeBasesData } = useKnowledgeBasesQuery();
   const activeKB = useMemo(() => {
     if (!knowledgeBasesData || !kbId) return null;
     return knowledgeBasesData.find((kb) => kb.id === kbId || kb.name === kbId) || null;
   }, [knowledgeBasesData, kbId]);
+
+  const displayName = activeKB?.name || kbNameFromState;
 
   const interfaceConfig = useMemo(
     () => startupConfig?.interface ?? defaultInterface,
@@ -75,7 +79,7 @@ export default function Header() {
                 <TemporaryChat />
               </>
             )}
-            {kbId && `You are chatting with ${activeKB.name}`}
+            {kbId && displayName && `You are chatting with ${displayName}`}
           </div>
         </div>
         {!isSmallScreen && (

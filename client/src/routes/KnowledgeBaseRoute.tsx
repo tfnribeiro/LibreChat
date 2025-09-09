@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { Files } from 'lucide-react';
 import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
@@ -8,6 +8,8 @@ import { useKnowledgeBaseConversationsQuery, useKnowledgeBasesQuery } from '~/da
 export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   const localize = useLocalize();
   const { kbId = '', conversationId = null } = useParams();
+  const location = useLocation();
+  const kbNameFromState = (location.state as { kbName?: string } | null)?.kbName;
   const [files] = useState([]);
   const { data, isLoading, isError, fetchNextPage, hasNextPage } =
     useKnowledgeBaseConversationsQuery(kbId, { limit: 20 });
@@ -19,6 +21,8 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
     return knowledgeBasesData.find((kb) => kb.id === kbId || kb.name === kbId) || null;
   }, [knowledgeBasesData, kbId]);
 
+  const displayName = activeKB?.name || kbNameFromState || '';
+
   return (
     <div className="flex h-full w-full flex-col">
       {conversationId ? (
@@ -28,7 +32,7 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
       ) : (
         <div className="flex flex-1 flex-col">
           <h1>HumaRAG</h1>
-          <p>Welcome to your collection: {activeKB.name}</p>
+          {displayName && <p>Welcome to your collection: {displayName}</p>}
         </div>
       )}
 
