@@ -67,6 +67,7 @@ export default function Header() {
               !isSmallScreen ? 'transition-all duration-200 ease-in-out' : ''
             } ${!navVisible ? 'translate-x-0' : 'translate-x-[-100px]'}`}
           >
+            {kbId && displayName && <div style={{ width: '20rem' }}>KB: {displayName}</div>}
             <ModelSelector startupConfig={startupConfig} />
             {interfaceConfig.presets === true && interfaceConfig.modelSelect && <PresetsMenu />}
             {hasAccessToBookmarks === true && <BookmarkMenu />}
@@ -79,7 +80,6 @@ export default function Header() {
                 <TemporaryChat />
               </>
             )}
-            {kbId && displayName && `You are chatting with ${displayName}`}
           </div>
         </div>
         {!isSmallScreen && (

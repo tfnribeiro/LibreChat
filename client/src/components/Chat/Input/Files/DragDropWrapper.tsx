@@ -18,12 +18,12 @@ export default function DragDropWrapper({ children, className }: DragDropWrapper
     <div ref={drop} className={cn('relative flex h-full w-full', className)}>
       {children}
       {isActive && <DragDropOverlay />}
-      <DragDropModal
+      {/*<DragDropModal
         files={draggedFiles}
         isVisible={showModal}
         setShowModal={setShowModal}
         onOptionSelect={handleOptionSelect}
-      />
+      />*/}
     </div>
   );
 }

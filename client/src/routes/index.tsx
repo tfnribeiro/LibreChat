@@ -20,6 +20,7 @@ import ChatRoute from './ChatRoute';
 import KnowledgeBaseRoute from './KnowledgeBaseRoute';
 import Search from './Search';
 import Root from './Root';
+import KnowledgeBasesSelectorRoute from './KnowledgeBasesSelectorRoute';
 
 const AuthLayout = () => (
   <AuthContextProvider>
@@ -97,7 +98,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/c/new" replace={true} />,
+            element: <Navigate to="home" replace={true} />,
           },
           {
             path: 'c/:conversationId?',
@@ -114,6 +115,10 @@ export const router = createBrowserRouter([
           {
             path: 'agents/:category',
             element: <AgentMarketplace />,
+          },
+          {
+            path: 'home',
+            element: <KnowledgeBasesSelectorRoute />,
           },
           {
             path: 'knowledge-bases/:kbId',

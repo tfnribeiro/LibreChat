@@ -23,6 +23,7 @@ import NewChat from './NewChat';
 import { cn } from '~/utils';
 import NewKnowledgeBase from './NewKnowledgeBase';
 import store from '~/store';
+import HomeButton from './HomeButton';
 
 const BookmarkNav = lazy(() => import('./Bookmarks/BookmarkNav'));
 const AccountSettings = lazy(() => import('./AccountSettings'));
@@ -121,8 +122,6 @@ const Nav = memo(
     }, [data]);
 
     const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated });
-    console.log('Current KBs');
-    console.log(kbs);
     const mappedKBs = useMemo(
       () =>
         kbs.map((kb) => ({
@@ -181,6 +180,7 @@ const Nav = memo(
     const headerButtons = useMemo(
       () => (
         <>
+          <HomeButton toggleNav={toggleNavVisible} isSmallScreen={isSmallScreen} />
           <NewKnowledgeBase toggleNav={toggleNavVisible} isSmallScreen={isSmallScreen} />
           <Suspense fallback={null}>
             <AgentMarketplaceButton isSmallScreen={isSmallScreen} toggleNav={toggleNavVisible} />
