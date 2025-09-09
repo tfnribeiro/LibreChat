@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import {
   Login,
   VerifyEmail,
@@ -18,6 +18,7 @@ import dashboardRoutes from './Dashboard';
 import ShareRoute from './ShareRoute';
 import ChatRoute from './ChatRoute';
 import KnowledgeBaseRoute from './KnowledgeBaseRoute';
+import KnowledgeBasesSelectorRoute from './KnowledgeBasesSelectorRoute';
 import Search from './Search';
 import Root from './Root';
 
@@ -97,7 +98,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="/c/new" replace={true} />,
+            element: <KnowledgeBasesSelectorRoute />,
           },
           {
             path: 'c/:conversationId?',
@@ -114,6 +115,10 @@ export const router = createBrowserRouter([
           {
             path: 'agents/:category',
             element: <AgentMarketplace />,
+          },
+          {
+            path: 'knowledge-bases',
+            element: <KnowledgeBasesSelectorRoute />,
           },
           {
             path: 'knowledge-bases/:kbId',
