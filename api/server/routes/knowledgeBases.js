@@ -11,6 +11,8 @@ const {
   updateKnowledgeBaseDescription,
   addConversationToKnowledgeBase,
   removeConversationFromKnowledgeBase,
+  addFileToKnowledgeBase,
+  removeFileFromKnowledgeBase,
 } = require('~/models/KnowledgeBase');
 
 router.use(requireJwtAuth);
@@ -20,7 +22,7 @@ async function getKB(req, idOrSlug) {
     ? { _id: idOrSlug, user: req.user.id }
     : { slug: idOrSlug, user: req.user.id };
 
-  const kb = await KnowledgeBase.findOne(kbQuery).lean();
+  const kb = await KnowledgeBase.findOne(kbQuery);
   return kb;
 }
 
@@ -67,6 +69,10 @@ router.get('/', async (req, res) => {
         path: 'conversations',
         select: 'title conversationId _id',
         options: { limit: limit, sort: { createdAt: -1 } },
+      })
+      .populate({
+        path: 'files',
+        select: 'filename filepath bytes type _id',
       });
 
     res.status(200).json(kbs);
@@ -157,6 +163,40 @@ router.post('/:idOrSlug/removeConversation', async (req, res) => {
     return res
       .status(500)
       .json({ message: 'Failed to remove conversation to KB.', error: error.message });
+  }
+});
+
+// Add file to knowledge base
+router.post('/:idOrSlug/addFile', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const { fileId } = req.body || {};
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+    const updated = await addFileToKnowledgeBase(kb._id, fileId);
+    res.status(201).json(updated);
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to add file to KB.', error: error.message });
+  }
+});
+
+// Remove file from knowledge base
+router.post('/:idOrSlug/removeFile', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const { fileId } = req.body || {};
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+    const updated = await removeFileFromKnowledgeBase(kb._id, fileId);
+    res.status(200).json(updated);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Failed to remove file from KB.', error: error.message });
   }
 });
 

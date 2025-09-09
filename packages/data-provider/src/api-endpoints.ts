@@ -352,3 +352,7 @@ export const addConversationToKnowledgeBase = (idOrSlug: string) =>
   `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/addConversation`;
 export const removeConversationFromKnowledgeBase = (idOrSlug: string) =>
   `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/removeConversation`;
+export const addFileToKnowledgeBase = (idOrSlug: string) =>
+  `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/addFile`;
+export const removeFileFromKnowledgeBase = (idOrSlug: string) =>
+  `/api/knowledge-bases/${encodeURIComponent(idOrSlug)}/removeFile`;

@@ -67,4 +67,12 @@ knowledgeBase.virtual('conversations', {
   justOne: false,
 });
 
+// Add virtual for files
+knowledgeBase.virtual('files', {
+  ref: 'File',
+  localField: 'fileIds',
+  foreignField: '_id',
+  justOne: false,
+});
+
 export default knowledgeBase;

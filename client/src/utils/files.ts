@@ -5,6 +5,7 @@ import {
   excelMimeTypes,
   codeTypeMapping,
   fileConfig as defaultFileConfig,
+  EToolResources,
 } from 'librechat-data-provider';
 import type { TFile, EndpointFileConfig } from 'librechat-data-provider';
 import type { QueryClient } from '@tanstack/react-query';
@@ -155,6 +156,24 @@ export function formatDate(dateString: string, isSmallScreen = false) {
   const year = date.getFullYear();
 
   return `${day} ${month} ${year}`;
+}
+
+export function inferToolResource(filename: string): EToolResources | undefined {
+  const extension = filename.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'pdf':
+    case 'txt':
+    case 'doc':
+    case 'docx':
+      return EToolResources.file_search;
+    case 'js':
+    case 'ts':
+    case 'py':
+    case 'java':
+      return EToolResources.execute_code;
+    default:
+      return undefined;
+  }
 }
 
 /**

@@ -19,7 +19,7 @@ import useLocalize, { TranslationKeys } from '~/hooks/useLocalize';
 import { useDelayedUploadToast } from './useDelayedUploadToast';
 import { processFileForUpload } from '~/utils/heicConverter';
 import { useChatContext } from '~/Providers/ChatContext';
-import { logger, validateFiles } from '~/utils';
+import { logger, validateFiles, inferToolResource } from '~/utils';
 import useClientResize from './useClientResize';
 import useUpdateFiles from './useUpdateFiles';
 
@@ -146,7 +146,7 @@ const useFileHandling = (params?: UseFileHandling) => {
   );
 
   const startUpload = async (extendedFile: ExtendedFile) => {
-    const filename = extendedFile.file?.name ?? 'File';
+    const filename = extendedFile.filename ?? extendedFile.file?.name ?? 'File';
     startUploadTimer(extendedFile.file_id, filename, extendedFile.size);
 
     const formData = new FormData();
@@ -273,19 +273,20 @@ const useFileHandling = (params?: UseFileHandling) => {
       try {
         // Create initial preview with original file
         const initialPreview = URL.createObjectURL(originalFile);
-
+        const inferredResource = _toolResource ?? inferToolResource(originalFile.name);
         // Create initial ExtendedFile to show immediately
         const initialExtendedFile: ExtendedFile = {
           file_id,
           file: originalFile,
           type: originalFile.type,
           preview: initialPreview,
+          filename: originalFile.name,
           progress: 0.1, // Show as processing
           size: originalFile.size,
         };
 
-        if (_toolResource != null && _toolResource !== '') {
-          initialExtendedFile.tool_resource = _toolResource;
+        if (inferredResource != null && inferredResource !== '') {
+          initialExtendedFile.tool_resource = inferredResource;
         }
 
         // Add file immediately to show in UI

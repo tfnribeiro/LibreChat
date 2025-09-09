@@ -53,6 +53,7 @@ export default function useDragHelpers() {
       accept: [NativeTypes.FILE],
       drop(item: { files: File[] }) {
         console.log('drop', item.files);
+        /*
         if (isAssistants) {
           handleFiles(item.files);
           return;
@@ -68,8 +69,9 @@ export default function useDragHelpers() {
           handleFiles(item.files);
           return;
         }
-        setDraggedFiles(item.files);
         setShowModal(true);
+        */
+        setDraggedFiles(item.files);
       },
       canDrop: () => true,
       collect: (monitor: DropTargetMonitor) => ({
