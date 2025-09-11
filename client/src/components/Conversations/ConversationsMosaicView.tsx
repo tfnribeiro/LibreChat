@@ -1,6 +1,6 @@
 import React from 'react';
+import type { MinimalConversation } from 'librechat-data-provider';
 import { MessageSquare } from 'lucide-react';
-import { Button } from '@librechat/client';
 import { useGetConvoIdQuery, useMessagesInfiniteQuery } from '~/data-provider/queries';
 
 type ConversationsMosaicViewProps = {
@@ -24,14 +24,6 @@ function ConversationTile({
 
   const messageCount = convoDetails?.messages?.length ?? undefined;
 
-  // Fetch first message for preview (oldest by createdAt)
-  const { data: messagesData } = useMessagesInfiniteQuery(
-    {
-      conversationId: id,
-      sortBy: 'createdAt',
-      sortDirection: 'asc',
-      pageSize: 1,
-    },
   return (
     <div
       className="group relative flex min-h-[3rem] w-full cursor-pointer flex-col overflow-hidden rounded-md border border-border-medium bg-surface-secondary p-2 shadow-sm transition-all duration-200 hover:shadow-md"
