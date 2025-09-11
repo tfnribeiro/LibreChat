@@ -30,9 +30,9 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   const displayName = activeKB?.name || kbNameFromState || '';
 
   return (
-    <div className="flex h-full w-full flex-col">
+    <div className="flex h-full min-h-0 w-full flex-col">
       {conversationId ? (
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-h-0 flex-1 flex-col">
           <ChatRoute />
         </div>
       ) : (
@@ -54,13 +54,11 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
             <MosaicView files={files} onFileClick={(file) => console.log('File clicked:', file)} />
           )}
         </DragDropWrapper>
-        {conversations && (
+        {conversations && !conversationId && (
           <div className="max-h-[50vh] overflow-y-auto">
             <h3 className="mb-2 text-sm font-medium">{localize('com_ui_past_chats')}</h3>
             {conversations.length === 0 ? (
-              <div className="text-sm text-text-secondary">
-                {localize('com_ui_no_chats_yet')}
-              </div>
+              <div className="text-sm text-text-secondary">{localize('com_ui_no_chats_yet')}</div>
             ) : (
               <ConversationsMosaicView
                 conversations={conversations}

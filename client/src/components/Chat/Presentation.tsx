@@ -58,7 +58,7 @@ export default function Presentation({ children }: { children: React.ReactNode }
   const fullCollapse = useMemo(() => localStorage.getItem('fullPanelCollapse') === 'true', []);
 
   return (
-    <DragDropWrapper className="relative flex w-full grow overflow-hidden bg-presentation">
+    <DragDropWrapper className="relative flex min-h-0 w-full grow overflow-hidden bg-presentation">
       <SidePanelProvider>
         <SidePanelGroup
           defaultLayout={defaultLayout}
@@ -74,7 +74,7 @@ export default function Presentation({ children }: { children: React.ReactNode }
             ) : null
           }
         >
-          <main className="flex h-full flex-col overflow-y-auto" role="main">
+          <main className="flex h-full flex-col overflow-hidden" role="main">
             {children}
           </main>
         </SidePanelGroup>
