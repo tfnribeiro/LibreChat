@@ -89,7 +89,17 @@ export default function FilesMosaicView({
   previewOnHover = false,
   gridClassName,
 }: FilesMosaicViewProps) {
-  const [hoveredFile, setHoveredFile] = useState<string | null>(null);
+  const getId = (file: TFile, idx: number) =>
+    String(
+      (file as any).file_id ??
+        (file as any).id ??
+        (file as any)._id ??
+        (file as any).document_id ??
+        (file as any).filepath ??
+        (file as any).path ??
+        `${(file as any).filename ?? 'file'}-${idx}`,
+    );
+  // Hover preview is now controlled purely via CSS (group-hover)
   const [internalSelected, setInternalSelected] = useState<Set<string>>(new Set());
 
   const effectiveSelected = useMemo(
@@ -101,7 +111,9 @@ export default function FilesMosaicView({
     if (!selectable) return;
     // Initialize selection when files change
     if (selectedIds == null) {
-      const initial = defaultAllSelected ? new Set(files.map((f) => f.file_id)) : new Set<string>();
+      const initial = defaultAllSelected
+        ? new Set(files.map((f, i) => getId(f, i)))
+        : new Set<string>();
       setInternalSelected(initial);
       if (onSelectionChange) {
         onSelectionChange(Array.from(initial));
@@ -150,66 +162,66 @@ export default function FilesMosaicView({
         'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
       }
     >
-      {files.map((file) => (
-        <div
-          key={file.file_id}
-          className={`${
-            effectiveSelected.has(file.file_id) && selectable
-              ? 'shadow-md ring-2 ring-accent'
-              : 'shadow-sm'
-          } group relative flex h-32 w-full cursor-pointer flex-col overflow-hidden rounded-md border border-border-medium bg-surface-secondary transition-all duration-200 hover:shadow-md`}
-          onMouseEnter={() => setHoveredFile(file.file_id)}
-          onMouseLeave={() => setHoveredFile(null)}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (selectable) {
-              toggleSelect(file.file_id);
-              return;
-            }
-            if (!previewOnHover) {
-              onFileClick?.(file);
-            }
-          }}
-        >
-          {getFilePreview(file)}
+      {files.map((file, idx) => {
+        const id = getId(file, idx);
+        const isSelected = effectiveSelected.has(id) && selectable;
+        return (
+          <div
+            key={id}
+            className={`${
+              isSelected ? 'shadow-md ring-2 ring-accent' : 'shadow-sm'
+            } group/file relative flex h-32 w-full cursor-pointer flex-col overflow-hidden rounded-md border border-border-medium bg-surface-secondary transition-all duration-200 hover:shadow-md`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (selectable) {
+                toggleSelect(id);
+                return;
+              }
+              if (!previewOnHover) {
+                onFileClick?.(file);
+              }
+            }}
+          >
+            {getFilePreview(file)}
 
-          <div className="flex flex-col p-2">
-            <div className="flex items-center justify-between">
-              <h4 className="truncate text-xs font-medium text-text-primary">{file.filename}</h4>
-              {!selectable && (
-                <Button
-                  className="opacity-0 group-hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onFileClick?.(file);
-                  }}
-                >
-                  <AlertCircle className="icon-sm" />
-                </Button>
-              )}
-            </div>
-            <p className="truncate text-xs text-text-secondary">
-              {file.bytes ? `${(file.bytes / 1024).toFixed(1)} KB` : 'Unknown size'}
-            </p>
-          </div>
-
-          {/* Selection indicator */}
-          {selectable && (
-            <div className="pointer-events-none absolute right-1 top-1 rounded bg-black/50 px-1 py-0.5 text-[10px] font-medium text-white">
-              {effectiveSelected.has(file.file_id) ? 'Selected' : 'Tap to select'}
-            </div>
-          )}
-
-          {/* Hover preview cue */}
-          {hoveredFile === file.file_id && previewOnHover && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/45">
-              <div className="rounded-md bg-black/60 px-2 py-1 text-xs text-white">
-                {file.filename}
+            <div className="flex flex-col p-2">
+              <div className="flex items-center justify-between">
+                <h4 className="truncate text-xs font-medium text-text-primary">{file.filename}</h4>
+                {!selectable && (
+                  <Button
+                    className="opacity-0 group-hover/file:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFileClick?.(file);
+                    }}
+                  >
+                    <AlertCircle className="icon-sm" />
+                  </Button>
+                )}
               </div>
+              <p className="truncate text-xs text-text-secondary">
+                {file.bytes ? `${(file.bytes / 1024).toFixed(1)} KB` : 'Unknown size'}
+              </p>
             </div>
-          )}
-        </div>
-      ))}
+
+            {/* Selection indicator */}
+            {selectable && (
+              <div className="pointer-events-none absolute right-1 top-1 rounded bg-black/50 px-1 py-0.5 text-[10px] font-medium text-white">
+                {isSelected ? 'Selected' : 'Tap to select'}
+              </div>
+            )}
+
+            {/* Hover preview cue */}
+            {previewOnHover && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover/file:opacity-100">
+                <div className="rounded-md bg-black/60 px-2 py-1 text-xs text-white">
+                  {file.filename}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

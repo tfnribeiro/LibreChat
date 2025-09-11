@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ChatRoute from './ChatRoute';
 import { useLocalize } from '~/hooks';
 import { useKnowledgeBaseConversationsQuery, useKnowledgeBasesQuery } from '~/data-provider';
-import FilesMosaicView from '~/components/Files/FileList/MosaicView';
+import FilesMosaicView from '~/components/Files/FileList/FilesMosaicView';
 import ConversationsMosaicView from '~/components/Conversations/ConversationsMosaicView';
 
 export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
@@ -27,9 +27,33 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
       {conversationId ? (
-        <div className="flex min-h-0 flex-1 flex-col">
-          <ChatRoute />
-        </div>
+        <>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <ChatRoute />
+          </div>
+          {/* Bottom File Mosaic (visible during chat under a knowledge base) */}
+          <div className="mx-auto w-full max-w-7xl shrink-0 px-4 pb-3 pt-2">
+            <h3 className="mb-2 text-sm font-medium text-text-primary">
+              {localize('com_ui_kb_files')}
+            </h3>
+            <div className="max-h-[28vh] overflow-y-auto rounded-md">
+              {files.length === 0 ? (
+                <div className="flex h-24 items-center justify-center rounded-md bg-transparent">
+                  <p className="text-sm text-text-secondary">No files available</p>
+                </div>
+              ) : (
+                <FilesMosaicView
+                  files={files}
+                  selectable
+                  defaultAllSelected
+                  previewOnHover
+                  gridClassName="grid grid-cols-6 gap-3"
+                  onFileClick={(file) => console.log('File clicked:', file)}
+                />
+              )}
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <div className="flex flex-col items-center pb-4 pt-8 text-center">
