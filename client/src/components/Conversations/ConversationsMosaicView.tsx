@@ -6,6 +6,8 @@ import { useGetConvoIdQuery, useMessagesInfiniteQuery } from '~/data-provider/qu
 type ConversationsMosaicViewProps = {
   conversations: MinimalConversation[];
   onConversationClick?: (convo: MinimalConversation) => void;
+  /** Optional grid class override for layout */
+  gridClassName?: string;
 };
 
 function ConversationTile({
@@ -47,6 +49,7 @@ function ConversationTile({
 export default function ConversationsMosaicView({
   conversations,
   onConversationClick,
+  gridClassName,
 }: ConversationsMosaicViewProps) {
   if (!conversations || conversations.length === 0) {
     return (
@@ -58,7 +61,12 @@ export default function ConversationsMosaicView({
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div
+        className={
+          gridClassName ??
+          'grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'
+        }
+      >
         {conversations.map((convo) => (
           <ConversationTile
             key={convo.conversationId ?? convo.updatedAt}
