@@ -166,6 +166,33 @@ router.post('/:idOrSlug/removeConversation', async (req, res) => {
   }
 });
 
+router.get('/:idOrSlug/files', async (req, res) => {
+  try {
+    const { idOrSlug } = req.params;
+    const kb = await getKB(req, idOrSlug);
+    if (!kb) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+
+    // Use populate to fetch associated files with specified fields
+    const populatedKB = await KnowledgeBase.findById(kb._id).populate({
+      path: 'files',
+      select: 'filename filepath bytes type _id',
+    });
+
+    if (!populatedKB) {
+      return res.status(404).json({ message: 'Knowledge base not found' });
+    }
+
+    // Return the files array from the populated knowledge base
+    res.status(200).json(populatedKB.files || []);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Failed to retrieve knowledge base files', error: error.message });
+  }
+});
+
 // Add file to knowledge base
 router.post('/:idOrSlug/addFile', async (req, res) => {
   try {
@@ -175,6 +202,8 @@ router.post('/:idOrSlug/addFile', async (req, res) => {
     if (!kb) {
       return res.status(404).json({ message: 'Knowledge base not found' });
     }
+    console.log('Updating...!');
+    console.log(kb._id, fileId);
     const updated = await addFileToKnowledgeBase(kb._id, fileId);
     res.status(201).json(updated);
   } catch (error) {

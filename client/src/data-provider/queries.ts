@@ -6,7 +6,7 @@ import {
   defaultOrderQuery,
   defaultAssistantsVersion,
 } from 'librechat-data-provider';
-import { useQuery, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useQueryClient, Query } from '@tanstack/react-query';
 import type {
   UseInfiniteQueryOptions,
   QueryObserverResult,
@@ -83,6 +83,23 @@ export const useGetConvoIdQuery = (
       return dataService.getConversationById(id);
     },
     {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      ...config,
+    },
+  );
+};
+
+export const useGetKnowledgeBaseFilesQuery = (
+  knowledgeBaseId: string,
+  config?: UseQueryOptions<AssistantDocument[]>,
+): QueryObserverResult<AssistantDocument[]> => {
+  return useQuery<AssistantDocument[]>(
+    [QueryKeys.files, knowledgeBaseId],
+    () => dataService.listKnowledgeBaseFiles(knowledgeBaseId),
+    {
+      staleTime: 1000 * 60 * 5, // 5 minutes
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       refetchOnMount: false,

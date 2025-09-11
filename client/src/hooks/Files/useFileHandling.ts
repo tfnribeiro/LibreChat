@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { v4 } from 'uuid';
 import { useToastContext } from '@librechat/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -10,6 +11,7 @@ import {
   isAssistantsEndpoint,
   defaultAssistantsVersion,
   fileConfig as defaultFileConfig,
+  dataService,
 } from 'librechat-data-provider';
 import debounce from 'lodash/debounce';
 import type { EndpointFileConfig, TEndpointsConfig, TError } from 'librechat-data-provider';
@@ -34,6 +36,7 @@ type UseFileHandling = {
 const useFileHandling = (params?: UseFileHandling) => {
   const localize = useLocalize();
   const queryClient = useQueryClient();
+  const { kbId } = useParams();
   const { showToast } = useToastContext();
   const [errors, setErrors] = useState<string[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -58,6 +61,31 @@ const useFileHandling = (params?: UseFileHandling) => {
     [params?.overrideEndpoint, conversation?.endpointType, conversation?.endpoint],
   );
 
+  const addFileToActiveKB = (kbId: string | undefined, data: { _id?: string; file_id?: string }) => {
+    if (!kbId) return;
+    const fileId = data._id || data.file_id;
+    if (!fileId) return;
+
+    console.log('Adding file to knowledge base:', kbId, fileId);
+    dataService
+      .addFileToKnowledgeBase(kbId, fileId)
+      .then(() => {
+        queryClient.invalidateQueries([QueryKeys.knowledgeBases]);
+        showToast({
+          message: 'File added to knowledge base successfully',
+          status: 'success',
+          duration: 3000,
+        });
+      })
+      .catch((error) => {
+        console.error('Error adding file to knowledge base:', error);
+        showToast({
+          message: 'Failed to add file to knowledge base',
+          status: 'error',
+          duration: 3000,
+        });
+      });
+  };
   const displayToast = useCallback(() => {
     if (errors.length > 1) {
       // TODO: this should not be a dynamic localize input!!
@@ -128,6 +156,7 @@ const useFileHandling = (params?: UseFileHandling) => {
             assistant_id ? true : false,
           );
         }, 300);
+        addFileToActiveKB(kbId, data);
       },
       onError: (_error, body) => {
         const error = _error as TError | undefined;
@@ -392,7 +421,6 @@ const useFileHandling = (params?: UseFileHandling) => {
             loadImage(readyExtendedFile, initialPreview);
             continue;
           }
-
           await startUpload(readyExtendedFile);
         }
       } catch (error) {

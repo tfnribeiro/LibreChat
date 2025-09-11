@@ -959,7 +959,8 @@ export function getGraphApiToken(params: q.GraphTokenParams): Promise<q.GraphTok
 
 // Knowledge Bases
 export const listKnowledgeBases = (): Promise<any[]> => request.get(endpoints.knowledgeBases());
-
+export const listKnowledgeBaseFiles = (kbId: string): Promise<any[]> =>
+  request.get(endpoints.knowledgeBaseFiles(kbId));
 export const createKnowledgeBase = (data: { name: string; description?: string; slug?: string }) =>
   request.post(endpoints.knowledgeBases(), data);
 export const getKnowledgeBaseConversations = (
@@ -968,3 +969,7 @@ export const getKnowledgeBaseConversations = (
 ) => request.get(endpoints.knowledgeBaseConversations(idOrSlug, params?.cursor, params?.limit));
 export const addConvoToKnowledgeBase = (idOrSlug: string, conversationId: string) =>
   request.post(endpoints.addConversationToKnowledgeBase(idOrSlug), { conversationId });
+export const addFileToKnowledgeBase = (idOrSlug: string, fileId: string) =>
+  request.post(endpoints.addFileToKnowledgeBase(idOrSlug), { fileId });
+export const removeFileFromKnowledgeBase = (idOrSlug: string, fileId: string) =>
+  request.post(endpoints.removeFileFromKnowledgeBase(idOrSlug), { fileId });

@@ -1,16 +1,19 @@
 import { useState, useMemo } from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Files } from 'lucide-react';
 import ChatRoute from './ChatRoute';
 import DragDropWrapper from '~/components/Chat/Input/Files/DragDropWrapper';
 import { useLocalize } from '~/hooks';
 import { useKnowledgeBaseConversationsQuery, useKnowledgeBasesQuery } from '~/data-provider';
+import MosaicView from '~/components/Files/FileList/MosaicView';
+import ConversationsMosaicView from '~/components/Conversations/ConversationsMosaicView';
+
 export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
   const localize = useLocalize();
+  const navigate = useNavigate();
   const { kbId = '', conversationId = null } = useParams();
   const location = useLocation();
   const kbNameFromState = (location.state as { kbName?: string } | null)?.kbName;
-  const [files] = useState([]);
   const { data, isLoading, isError, fetchNextPage, hasNextPage } =
     useKnowledgeBaseConversationsQuery(kbId, { limit: 20 });
   const conversations = data?.pages.flatMap((p) => p.conversations) ?? [];
@@ -20,6 +23,9 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
     if (!knowledgeBasesData || !kbId) return null;
     return knowledgeBasesData.find((kb) => kb.id === kbId || kb.name === kbId) || null;
   }, [knowledgeBasesData, kbId]);
+
+  console.log(activeKB);
+  const files = activeKB?.files ?? [];
 
   const displayName = activeKB?.name || kbNameFromState || '';
 
@@ -37,6 +43,7 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
       )}
 
       <div className="border-border-subtle flex flex-col gap-4 border-t p-4">
+        <h3 className="mb-2 text-sm font-medium">{localize('com_ui_kb_files')}</h3>
         <DragDropWrapper className="border-border-subtle flex items-center justify-center rounded-md border border-dashed p-4">
           {files.length === 0 ? (
             <div className="flex flex-col items-center text-text-secondary">
@@ -44,28 +51,24 @@ export default function KnowledgeBaseRoute({}: KnowledgeBaseRouteProps = {}) {
               <p className="text-sm">{localize('com_ui_drag_drop_kb')}</p>
             </div>
           ) : (
-            <ul className="text-sm text-text-secondary">
-              {files.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
+            <MosaicView files={files} onFileClick={(file) => console.log('File clicked:', file)} />
           )}
         </DragDropWrapper>
         {conversations && (
-          <div className="max-h-40 min-h-32 overflow-y-auto">
+          <div className="max-h-[50vh] overflow-y-auto">
             <h3 className="mb-2 text-sm font-medium">{localize('com_ui_past_chats')}</h3>
             {conversations.length === 0 ? (
-              <ul className="space-y-2 text-sm text-text-secondary">
-                <li>{localize('com_ui_no_chats_yet')}</li>
-              </ul>
+              <div className="text-sm text-text-secondary">
+                {localize('com_ui_no_chats_yet')}
+              </div>
             ) : (
-              <ul className="space-y-2 text-sm text-text-secondary">
-                {conversations.map((c) => (
-                  <li key={c.id}>
-                    <Link to={`/knowledge-bases/${kbId}/c/${c.conversationId}`}>{c.title}</Link>
-                  </li>
-                ))}
-              </ul>
+              <ConversationsMosaicView
+                conversations={conversations}
+                onConversationClick={(c) => {
+                  if (!c.conversationId) return;
+                  navigate(`/knowledge-bases/${kbId}/c/${c.conversationId}`);
+                }}
+              />
             )}
           </div>
         )}

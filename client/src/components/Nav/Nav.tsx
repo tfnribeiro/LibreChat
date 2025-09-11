@@ -122,12 +122,14 @@ const Nav = memo(
     }, [data]);
 
     const { data: kbs = [] } = useKnowledgeBasesQuery({ enabled: isAuthenticated });
+    console.log(kbs);
     const mappedKBs = useMemo(
       () =>
         kbs.map((kb) => ({
           id: kb.slug || kb._id,
           name: kb.name,
           conversations: kb.conversations,
+          files: kb.files,
         })),
       [kbs],
     );

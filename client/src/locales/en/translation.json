@@ -997,6 +997,7 @@
   "com_ui_new_project": "Create new project",
   "com_ui_new_knowledge_base": "Create knowledge base",
   "com_ui_kb_error": "Failed to create the Knowledge Base, please try again.",
+  "com_ui_kb_files": "Knowledge base attached files",
   "com_ui_past_chats": "Knowledge base past chats",
   "com_ui_no_chats_yet": "You haven't got any conversations within this knowledge base yet.",
   "com_ui_next": "Next",
